@@ -1,0 +1,15 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Model\Entity;
+
+use Cake\ORM\Entity;
+
+class Event extends Entity
+{
+    protected array $_accessible = [
+        'event_name' => true,
+        'event_date' => true,
+        'location' => true,
+    ];
+}

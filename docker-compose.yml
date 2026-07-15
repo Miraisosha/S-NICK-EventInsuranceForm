@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-snick_insurance}
+      MYSQL_USER: ${MYSQL_USER:-snick}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-snick_dev_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_password}
+      TZ: Asia/Tokyo
+    ports:
+      - "${MYSQL_HOST_PORT:-3308}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root_dev_password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    environment:
+      DEBUG: "true"
+      SECURITY_SALT: ${SECURITY_SALT:-change-this-development-salt-before-production}
+      DATABASE_URL: mysql://${MYSQL_USER:-snick}:${MYSQL_PASSWORD:-snick_dev_password}@mysql:3306/${MYSQL_DATABASE:-snick_insurance}?encoding=utf8mb4&timezone=Asia%2FTokyo
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
+      EXPORT_API_KEY: ${EXPORT_API_KEY:-change-this-export-key}
+      EXPORT_ZIP_PASSWORD: ${EXPORT_ZIP_PASSWORD:-change-this-zip-password}
+    ports:
+      - "8080:80"
+    volumes:
+      - ./api:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -lc "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  mysql-data:
+  frontend-node-modules:
