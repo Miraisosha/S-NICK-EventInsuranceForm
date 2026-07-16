@@ -3,11 +3,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Http\Response;
 use ZipArchive;
-
-use function Cake\Core\env;
 
 class AdminExportsController extends AppController
 {
@@ -19,7 +18,7 @@ class AdminExportsController extends AppController
             return $this->json(['message' => '出力キーが正しくありません。'], 401);
         }
 
-        $zipPassword = (string)env('EXPORT_ZIP_PASSWORD', '');
+        $zipPassword = (string)Configure::read('Export.zipPassword', '');
         if ($zipPassword === '') {
             return $this->json(['message' => 'ZIPパスワードが設定されていません。'], 500);
         }
@@ -91,7 +90,7 @@ class AdminExportsController extends AppController
 
     private function isAuthorized(): bool
     {
-        $expected = (string)env('EXPORT_API_KEY', '');
+        $expected = (string)Configure::read('Export.apiKey', '');
         $authorization = $this->request->getHeaderLine('Authorization');
         $provided = str_starts_with($authorization, 'Bearer ')
             ? substr($authorization, 7)

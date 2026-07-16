@@ -8,6 +8,14 @@ return [
     'Security' => [
         'salt' => env('SECURITY_SALT', 'change-this-development-salt'),
     ],
+    'App' => [
+        'fullBaseUrl' => env('APP_FULL_BASE_URL', 'http://localhost:8080'),
+        'frontendOrigin' => env('FRONTEND_ORIGIN', 'http://localhost:5173'),
+    ],
+    'Export' => [
+        'apiKey' => env('EXPORT_API_KEY', ''),
+        'zipPassword' => env('EXPORT_ZIP_PASSWORD', ''),
+    ],
     'Datasources' => [
         'default' => [
             'url' => env('DATABASE_URL'),

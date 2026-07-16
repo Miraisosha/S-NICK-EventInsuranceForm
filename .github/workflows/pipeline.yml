@@ -1,0 +1,148 @@
+name: CI and production deploy
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: snick_ci
+          MYSQL_USER: snick
+          MYSQL_PASSWORD: snick_ci_password
+          MYSQL_ROOT_PASSWORD: root_ci_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot_ci_password"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DEBUG: "false"
+      SECURITY_SALT: ci-only-security-salt
+      DATABASE_URL: mysql://snick:snick_ci_password@127.0.0.1:3306/snick_ci?encoding=utf8mb4
+      DATABASE_TEST_URL: sqlite://127.0.0.1/tmp/snick-tests.sqlite
+      APP_FULL_BASE_URL: http://localhost
+      EXPORT_API_KEY: ci-only-export-key
+      EXPORT_ZIP_PASSWORD: ci-only-zip-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: intl, mbstring, pdo_mysql, pdo_sqlite, zip
+          coverage: none
+      - name: Install backend dependencies
+        working-directory: api
+        run: composer install --no-interaction --prefer-dist
+      - name: Check PHP syntax
+        working-directory: api
+        run: find src config -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Apply MySQL 5.7 migrations
+        working-directory: api
+        run: php bin/cake.php migrations migrate
+      - name: Run backend tests
+        working-directory: api
+        run: composer test
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+  deploy:
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://insurance.s-nick.com
+    env:
+      SSH_HOST: ${{ vars.SSH_HOST || 'www58.onamae.ne.jp' }}
+      SSH_PORT: ${{ vars.SSH_PORT || '8022' }}
+      SSH_USER: ${{ vars.SSH_USER || 'r1216602' }}
+      APP_ROOT: ${{ vars.APP_ROOT || '/home/r1216602/apps/snick-insurance' }}
+      PUBLIC_DIR: ${{ vars.PUBLIC_DIR || '/home/r1216602/public_html/insurance.s-nick.com' }}
+      APP_URL: ${{ vars.APP_URL || 'https://insurance.s-nick.com' }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SECURITY_SALT: ${{ secrets.SECURITY_SALT }}
+      EXPORT_API_KEY: ${{ secrets.EXPORT_API_KEY }}
+      EXPORT_ZIP_PASSWORD: ${{ secrets.EXPORT_ZIP_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: intl, mbstring, pdo_mysql, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build production release
+        shell: bash
+        run: |
+          composer install --working-dir=api --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          npm ci --prefix frontend
+          npm run build --prefix frontend
+          mkdir -p .deploy/release/api .deploy/release/public
+          rsync -a api/ .deploy/release/api/ \
+            --exclude='/.github' --exclude='/config/app_local.php' \
+            --exclude='/logs' --exclude='/tmp' --exclude='/tests'
+          rsync -a frontend/dist/ .deploy/release/public/
+          cp deploy/public.htaccess .deploy/release/public/.htaccess
+          cp -R deploy .deploy/release/deploy
+          php deploy/build_app_local.php .deploy/app_local.php
+      - name: Configure SSH
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY"
+          test -n "$SSH_KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Upload and activate release
+        shell: bash
+        run: |
+          release_id="${GITHUB_SHA}"
+          release_dir="$APP_ROOT/releases/$release_id"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "mkdir -p '$release_dir' '$APP_ROOT/shared/config'"
+          rsync -az --delete -e "ssh -p $SSH_PORT" \
+            .deploy/release/ "$SSH_USER@$SSH_HOST:$release_dir/"
+          rsync -az -e "ssh -p $SSH_PORT" \
+            .deploy/app_local.php "$SSH_USER@$SSH_HOST:$APP_ROOT/shared/config/app_local.php.next"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "bash '$release_dir/deploy/activate-release.sh' '$APP_ROOT' '$PUBLIC_DIR' '$release_id'"

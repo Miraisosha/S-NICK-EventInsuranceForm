@@ -5,8 +5,8 @@
 ## 構成
 
 - `frontend`: Vue 3 / Vite / Bootstrap 5
-- `api`: CakePHP 5 / PHP 8.4
-- `database`: MySQL 8.4 初期スキーマ
+- `api`: CakePHP 5 / PHP 8.5（本番）
+- `database`: MySQL 5.7互換スキーマ
 - `docker`: ローカル開発環境
 
 ## VS Codeでの開始方法
@@ -69,6 +69,35 @@ docker compose exec api bin/cake create_invitation "山田 太郎" --days 30
 - 本番用の秘密情報（`.env`）をリポジトリ外で安全に管理する方法
 
 表示中の「個人情報の取扱いについて」は初期案です。実際の契約・業務フローに合わせ、運用責任者または法務担当者の確認を受けてください。
+
+## GitHub Actionsから本番へデプロイ
+
+Pull Requestではバックエンド、MySQL 5.7 Migration、フロントエンドビルドを検証します。`main` へマージされた場合だけ、同じ検証に成功した後でお名前.com RSへデプロイします。
+
+GitHubリポジトリの `production` Environmentへ次を登録してください。
+
+Secrets:
+
+- `SSH_PRIVATE_KEY`: お名前.comからダウンロードした `snickdeploy.pem` の全文
+- `SSH_KNOWN_HOSTS`: SSH復旧後に取得し、フィンガープリントを確認したknown_hostsの1行
+- `DATABASE_URL`: `mysql://ユーザー:URLエンコード済みパスワード@DBホスト:3306/DB名?encoding=utf8mb4`
+- `SECURITY_SALT`: 十分に長いランダム値
+- `EXPORT_API_KEY`: 管理画面で使う十分に長いランダム値
+- `EXPORT_ZIP_PASSWORD`: CSV ZIP解凍用の十分に長いランダム値
+
+Variables（未登録時は下記の既定値を使用）:
+
+- `SSH_HOST`: `www58.onamae.ne.jp`
+- `SSH_PORT`: `8022`
+- `SSH_USER`: `r1216602`
+- `APP_ROOT`: `/home/r1216602/apps/snick-insurance`
+- `PUBLIC_DIR`: `/home/r1216602/public_html/insurance.s-nick.com`
+- `APP_URL`: `https://insurance.s-nick.com`
+- `DEPLOY_ENABLED`: 最初は `false`
+
+現在はお名前.com側でRSプランのSSHが停止されているため、`DEPLOY_ENABLED=false` のままにします。SSH復旧後に接続確認とknown_hostsのフィンガープリント確認を行い、国外アクセス制限を確認したうえで `true` に変更します。秘密鍵、DB接続情報、ZIPパスワードはリポジトリへコミットしません。
+
+デプロイ時は公開領域外へリリースを配置し、CakePHP Migrationを実行してから `/api` のシンボリックリンクとフロント資材を切り替えます。
 
 ## 初期DBを作り直す場合
 

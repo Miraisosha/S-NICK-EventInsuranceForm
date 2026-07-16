@@ -54,6 +54,7 @@ return [
         'encoding' => env('APP_ENCODING', 'UTF-8'),
         'defaultLocale' => env('APP_DEFAULT_LOCALE', 'en_US'),
         'defaultTimezone' => env('APP_DEFAULT_TIMEZONE', 'UTC'),
+        'frontendOrigin' => env('FRONTEND_ORIGIN', 'http://localhost:5173'),
         'base' => false,
         'dir' => 'src',
         'webroot' => 'webroot',
@@ -79,6 +80,11 @@ return [
      */
     'Security' => [
         'salt' => env('SECURITY_SALT'),
+    ],
+
+    'Export' => [
+        'apiKey' => env('EXPORT_API_KEY', ''),
+        'zipPassword' => env('EXPORT_ZIP_PASSWORD', ''),
     ],
 
     /*

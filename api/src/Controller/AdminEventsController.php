@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Core\Configure;
 use Cake\Http\Response;
-
-use function Cake\Core\env;
 
 class AdminEventsController extends AppController
 {
@@ -65,7 +64,7 @@ class AdminEventsController extends AppController
 
     private function isAuthorized(): bool
     {
-        $expected = (string)env('EXPORT_API_KEY', '');
+        $expected = (string)Configure::read('Export.apiKey', '');
         $authorization = $this->request->getHeaderLine('Authorization');
         $provided = str_starts_with($authorization, 'Bearer ')
             ? substr($authorization, 7)
