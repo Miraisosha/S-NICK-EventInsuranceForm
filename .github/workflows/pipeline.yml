@@ -38,14 +38,12 @@ jobs:
       DATABASE_URL: mysql://snick:snick_ci_password@127.0.0.1:3306/snick_ci?encoding=utf8mb4
       DATABASE_TEST_URL: sqlite://127.0.0.1/tmp/snick-tests.sqlite
       APP_FULL_BASE_URL: http://localhost
-      EXPORT_API_KEY: ci-only-export-key
-      EXPORT_ZIP_PASSWORD: ci-only-zip-password
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
-          extensions: intl, mbstring, pdo_mysql, pdo_sqlite, zip
+          extensions: intl, mbstring, pdo_mysql, pdo_sqlite, sodium, zip
           coverage: none
       - name: Install backend dependencies
         working-directory: api
@@ -92,14 +90,12 @@ jobs:
       APP_URL: ${{ vars.APP_URL || 'https://insurance.s-nick.com' }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       SECURITY_SALT: ${{ secrets.SECURITY_SALT }}
-      EXPORT_API_KEY: ${{ secrets.EXPORT_API_KEY }}
-      EXPORT_ZIP_PASSWORD: ${{ secrets.EXPORT_ZIP_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
-          extensions: intl, mbstring, pdo_mysql, zip
+          extensions: intl, mbstring, pdo_mysql, sodium, zip
           coverage: none
       - uses: actions/setup-node@v4
         with:

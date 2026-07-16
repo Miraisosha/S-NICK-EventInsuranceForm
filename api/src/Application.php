@@ -31,7 +31,7 @@ class Application extends BaseApplication
     {
         $csrf = new CsrfProtectionMiddleware(['httponly' => true]);
         $csrf->skipCheckCallback(
-            fn (ServerRequestInterface $request): bool => str_starts_with($request->getUri()->getPath(), '/api/'),
+            fn (ServerRequestInterface $request): bool => !str_starts_with($request->getUri()->getPath(), '/api/admin/'),
         );
 
         $middlewareQueue

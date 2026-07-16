@@ -7,6 +7,8 @@ use App\Model\Entity\InsuranceMember;
 use App\Model\Table\InsuranceMembersTable;
 use Cake\Http\Response;
 use Cake\I18n\DateTime;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 class InvitationsController extends AppController
 {
@@ -48,6 +50,7 @@ class InvitationsController extends AppController
 
         return $this->json([
             'invitedName' => $member->invited_name,
+            'eventId' => $member->event_id,
             'submitted' => $member->submitted_at !== null,
             'policyVersion' => self::POLICY_VERSION,
             'events' => $this->availableEvents(),
@@ -201,18 +204,22 @@ class InvitationsController extends AppController
             'options' => ['min_range' => 1],
         ]);
 
-        return $id !== false && $this->fetchTable('Events')->exists(['id' => $id]);
+        return $id !== false && $this->fetchTable('Events')->exists([
+            'id' => $id,
+            'deleted_at IS' => null,
+        ]);
     }
 
     private function availableEvents(): array
     {
         $events = $this->fetchTable('Events')
             ->find()
+            ->where(['deleted_at IS' => null])
             ->orderByAsc('event_date')
             ->orderByAsc('id')
             ->all();
 
-        return array_map(static fn ($event): array => [
+        return array_map(static fn($event): array => [
             'id' => $event->id,
             'event_name' => $event->event_name,
             'event_date' => $event->event_date?->format('Y-m-d'),
@@ -224,7 +231,7 @@ class InvitationsController extends AppController
     {
         $flattened = [];
         foreach ($errors as $field => $messages) {
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($messages));
+            $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($messages));
             foreach ($iterator as $message) {
                 if (is_string($message)) {
                     $flattened[$field] = $message;
@@ -234,13 +241,5 @@ class InvitationsController extends AppController
         }
 
         return $flattened;
-    }
-
-    private function json(array $payload, int $status = 200): Response
-    {
-        return $this->response
-            ->withStatus($status)
-            ->withHeader('Content-Type', 'application/json; charset=UTF-8')
-            ->withStringBody((string)json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }

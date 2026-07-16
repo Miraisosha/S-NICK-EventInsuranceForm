@@ -8,11 +8,12 @@ class CreateEvents extends BaseMigration
     public function up(): void
     {
         if (!$this->hasTable('events')) {
+            $idType = $this->getAdapter()->getAdapterType() === 'sqlite' ? 'integer' : 'biginteger';
             $this->table('events', [
                 'id' => false,
                 'collation' => 'utf8mb4_unicode_ci',
             ])
-                ->addColumn('id', 'biginteger', ['identity' => true, 'signed' => false])
+                ->addColumn('id', $idType, ['identity' => true, 'signed' => false])
                 ->addColumn('event_name', 'string', ['limit' => 150])
                 ->addColumn('event_date', 'date')
                 ->addColumn('location', 'string', ['limit' => 255])

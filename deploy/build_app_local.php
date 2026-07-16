@@ -10,8 +10,6 @@ $required = [
     'APP_URL',
     'DATABASE_URL',
     'SECURITY_SALT',
-    'EXPORT_API_KEY',
-    'EXPORT_ZIP_PASSWORD',
 ];
 
 $values = [];
@@ -34,10 +32,6 @@ $config = [
     ],
     'Security' => [
         'salt' => $values['SECURITY_SALT'],
-    ],
-    'Export' => [
-        'apiKey' => $values['EXPORT_API_KEY'],
-        'zipPassword' => $values['EXPORT_ZIP_PASSWORD'],
     ],
     'Datasources' => [
         'default' => [

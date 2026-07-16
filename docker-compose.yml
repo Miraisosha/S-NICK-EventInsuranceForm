@@ -27,8 +27,6 @@ services:
       SECURITY_SALT: ${SECURITY_SALT:-change-this-development-salt-before-production}
       DATABASE_URL: mysql://${MYSQL_USER:-snick}:${MYSQL_PASSWORD:-snick_dev_password}@mysql:3306/${MYSQL_DATABASE:-snick_insurance}?encoding=utf8mb4&timezone=Asia%2FTokyo
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
-      EXPORT_API_KEY: ${EXPORT_API_KEY:-change-this-export-key}
-      EXPORT_ZIP_PASSWORD: ${EXPORT_ZIP_PASSWORD:-change-this-zip-password}
     ports:
       - "8080:80"
     volumes:

@@ -35,6 +35,7 @@ ln -sfn "$app_root/shared/logs" "$release_dir/api/logs"
 ln -sfn "$app_root/shared/tmp" "$release_dir/api/tmp"
 
 cd "$release_dir/api"
+/usr/bin/php -r "exit(extension_loaded('sodium') ? 0 : 1);" || { echo "PHP sodium extension is required" >&2; exit 1; }
 /usr/bin/php bin/cake.php migrations migrate
 
 if [[ -e "$public_dir/api" && ! -L "$public_dir/api" ]]; then

@@ -3,20 +3,23 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Http\Response;
+use Cake\I18n\DateTime;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 class AdminEventsController extends AppController
 {
     public function index(): Response
     {
         $this->request->allowMethod(['get']);
-        if (!$this->isAuthorized()) {
-            return $this->json(['message' => '管理キーが正しくありません。'], 401);
+        if ($unauthorized = $this->requireAdmin()) {
+            return $unauthorized;
         }
 
         $events = $this->fetchTable('Events')
             ->find()
+            ->where(['deleted_at IS' => null])
             ->orderByDesc('event_date')
             ->orderByDesc('id')
             ->all();
@@ -29,8 +32,8 @@ class AdminEventsController extends AppController
     public function add(): Response
     {
         $this->request->allowMethod(['post']);
-        if (!$this->isAuthorized()) {
-            return $this->json(['message' => '管理キーが正しくありません。'], 401);
+        if ($unauthorized = $this->requireAdmin()) {
+            return $unauthorized;
         }
 
         $table = $this->fetchTable('Events');
@@ -52,32 +55,106 @@ class AdminEventsController extends AppController
         return $this->json(['event' => $this->eventData($event)], 201);
     }
 
+    public function view(string $id): Response
+    {
+        $this->request->allowMethod(['get']);
+        if ($unauthorized = $this->requireAdmin()) {
+            return $unauthorized;
+        }
+
+        $event = $this->activeEvent($id);
+        if ($event === null) {
+            return $this->json(['message' => 'イベントが見つかりません。'], 404);
+        }
+
+        return $this->json(['event' => $this->eventData($event)]);
+    }
+
+    public function edit(string $id): Response
+    {
+        $this->request->allowMethod(['put', 'patch']);
+        if ($unauthorized = $this->requireAdmin()) {
+            return $unauthorized;
+        }
+
+        $table = $this->fetchTable('Events');
+        $event = $this->activeEvent($id);
+        if ($event === null) {
+            return $this->json(['message' => 'イベントが見つかりません。'], 404);
+        }
+
+        $event = $table->patchEntity($event, (array)$this->request->getData(), [
+            'fields' => ['event_name', 'event_date', 'location'],
+        ]);
+        $errors = $this->flattenErrors($event->getErrors());
+        if ($errors !== []) {
+            return $this->json(['message' => '入力内容を確認してください。', 'errors' => $errors], 422);
+        }
+        if (!$table->save($event)) {
+            return $this->json(['message' => 'イベントを更新できませんでした。'], 500);
+        }
+
+        return $this->json(['event' => $this->eventData($event)]);
+    }
+
+    public function delete(string $id): Response
+    {
+        $this->request->allowMethod(['delete']);
+        if ($unauthorized = $this->requireAdmin()) {
+            return $unauthorized;
+        }
+
+        $table = $this->fetchTable('Events');
+        $event = $this->activeEvent($id);
+        if ($event === null) {
+            return $this->json(['message' => 'イベントが見つかりません。'], 404);
+        }
+
+        $event->deleted_at = DateTime::now();
+        if (!$table->save($event, ['checkRules' => false])) {
+            return $this->json(['message' => 'イベントを削除できませんでした。'], 500);
+        }
+
+        return $this->json(['deleted' => true]);
+    }
+
     private function eventData(object $event): array
     {
+        $members = $this->fetchTable('InsuranceMembers');
+        $pendingCount = $members->find()
+            ->where(['event_id' => $event->id, 'submitted_at IS' => null])
+            ->count();
+        $completedCount = $members->find()
+            ->where(['event_id' => $event->id, 'submitted_at IS NOT' => null])
+            ->count();
+
         return [
             'id' => $event->id,
             'event_name' => $event->event_name,
             'event_date' => $event->event_date?->format('Y-m-d'),
             'location' => $event->location,
+            'pending_count' => $pendingCount,
+            'completed_count' => $completedCount,
         ];
     }
 
-    private function isAuthorized(): bool
+    private function activeEvent(string $id): ?object
     {
-        $expected = (string)Configure::read('Export.apiKey', '');
-        $authorization = $this->request->getHeaderLine('Authorization');
-        $provided = str_starts_with($authorization, 'Bearer ')
-            ? substr($authorization, 7)
-            : '';
+        $eventId = filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($eventId === false) {
+            return null;
+        }
 
-        return $expected !== '' && $provided !== '' && hash_equals($expected, $provided);
+        return $this->fetchTable('Events')->find()
+            ->where(['id' => $eventId, 'deleted_at IS' => null])
+            ->first();
     }
 
     private function flattenErrors(array $errors): array
     {
         $flattened = [];
         foreach ($errors as $field => $messages) {
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($messages));
+            $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($messages));
             foreach ($iterator as $message) {
                 if (is_string($message)) {
                     $flattened[$field] = $message;
@@ -87,13 +164,5 @@ class AdminEventsController extends AppController
         }
 
         return $flattened;
-    }
-
-    private function json(array $payload, int $status = 200): Response
-    {
-        return $this->response
-            ->withStatus($status)
-            ->withHeader('Content-Type', 'application/json; charset=UTF-8')
-            ->withStringBody((string)json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }

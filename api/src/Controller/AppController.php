@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Http\Response;
 
 /**
  * Application Controller
@@ -48,5 +49,23 @@ class AppController extends Controller
          * see https://book.cakephp.org/5/en/controllers/components/form-protection.html
          */
         //$this->loadComponent('FormProtection');
+    }
+
+    protected function requireAdmin(): ?Response
+    {
+        if ($this->request->getSession()->read('Admin.id')) {
+            return null;
+        }
+
+        return $this->json(['message' => '管理者ログインが必要です。'], 401);
+    }
+
+    protected function json(array $payload, int $status = 200): Response
+    {
+        return $this->response
+            ->withStatus($status)
+            ->withHeader('Content-Type', 'application/json; charset=UTF-8')
+            ->withHeader('Cache-Control', 'no-store')
+            ->withStringBody((string)json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }

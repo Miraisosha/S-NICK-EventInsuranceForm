@@ -35,20 +35,32 @@ http://localhost:5173/register/demo-token-for-development-only
 コンテナ起動後、対象者の氏名を指定して実行します。
 
 ```powershell
-docker compose exec api bin/cake create_invitation "山田 太郎" --days 30
+docker compose exec api bin/cake create_invitation "山田 太郎" --event-id 2 --days 30
 ```
 
 コマンドがLINEなどで配布する個別URLを表示します。URLの生トークンはDBに保存せず、SHA-256ハッシュだけを保存します。
 
 ## 登録データのCSV出力
 
-`http://localhost:5173/admin/export` を開き、`.env` の `EXPORT_API_KEY` を入力すると、登録完了済みデータのCSVをAES-256暗号化したZIPでダウンロードできます。ZIPの解凍パスワードには `.env` の `EXPORT_ZIP_PASSWORD` が使われます。ZIP内のCSVはUTF-8 BOM付きのため、Excelで日本語を表示できます。
+イベント詳細画面から、そのイベントの登録完了済みデータをCSVにしてAES-256暗号化ZIPでダウンロードできます。ZIP解凍パスワードは出力ごとにランダム生成され、ダウンロード後の画面に一度だけ表示されます。ZIP内のCSVはUTF-8 BOM付きのため、Excelで日本語を表示できます。
 
-`.env` を作成していない開発環境では、初期キーは `change-this-export-key`、初期ZIPパスワードは `change-this-zip-password` です。本番利用前に、両方をそれぞれ十分長いランダムな値へ必ず変更してください。出力キーはURLに含めず、ブラウザにも保存しません。ZIPと解凍パスワードは別経路で共有してください。
+`.env` を作成していない開発環境では、初期ZIPパスワードは `change-this-zip-password` です。本番利用前に十分長いランダムな値へ必ず変更してください。ZIPと解凍パスワードは別経路で共有してください。
 
 ## イベントマスター
 
-`http://localhost:5173/admin/events` を開き、`.env` の `EXPORT_API_KEY` を管理キーとして入力すると、イベント名・開催日・場所を登録できます。登録したイベントは加入者情報入力画面のプルダウンへ表示され、選択すると開催日と場所が表示されます。
+`http://localhost:5173/admin/events` を開き、管理者としてログインすると、イベント名・開催日・場所を登録できます。登録したイベントは加入者情報入力画面のプルダウンへ表示され、選択すると開催日と場所が表示されます。
+
+## 管理者アカウントと認証アプリ
+
+Migration適用後、APIコンテナで管理者を作成します。初回パスワードはコマンド実行時に一度だけ表示されます。
+
+```powershell
+docker compose exec api bin/cake create_admin snick-admin
+```
+
+`http://localhost:5173/admin/login` へアクセスし、表示された管理者ID・初回パスワードでログインします。初回ログインではGoogle Authenticator、Microsoft AuthenticatorなどでQRコードを読み取り、6桁コードを入力します。表示される8個のリカバリーコードは、スマートフォンとは別の安全な場所へ保存してください。
+
+5回連続で認証に失敗すると、その管理者アカウントは15分間ロックされます。管理者ごとに個別アカウントを作成し、共通アカウントは使用しないでください。
 
 ## 登録フロー
 
@@ -82,8 +94,6 @@ Secrets:
 - `SSH_KNOWN_HOSTS`: SSH復旧後に取得し、フィンガープリントを確認したknown_hostsの1行
 - `DATABASE_URL`: `mysql://ユーザー:URLエンコード済みパスワード@DBホスト:3306/DB名?encoding=utf8mb4`
 - `SECURITY_SALT`: 十分に長いランダム値
-- `EXPORT_API_KEY`: 管理画面で使う十分に長いランダム値
-- `EXPORT_ZIP_PASSWORD`: CSV ZIP解凍用の十分に長いランダム値
 
 Variables（未登録時は下記の既定値を使用）:
 

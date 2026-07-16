@@ -11,11 +11,13 @@ class CreateInsuranceMembers extends BaseMigration
             return;
         }
 
+        $idType = $this->getAdapter()->getAdapterType() === 'sqlite' ? 'integer' : 'biginteger';
+
         $this->table('insurance_members', [
             'id' => false,
             'collation' => 'utf8mb4_unicode_ci',
         ])
-            ->addColumn('id', 'biginteger', ['identity' => true, 'signed' => false])
+            ->addColumn('id', $idType, ['identity' => true, 'signed' => false])
             ->addColumn('invited_name', 'string', ['limit' => 100])
             ->addColumn('full_name', 'string', ['limit' => 100, 'null' => true])
             ->addColumn('full_name_kana', 'string', ['limit' => 100, 'null' => true])

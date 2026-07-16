@@ -82,9 +82,9 @@ return [
         'salt' => env('SECURITY_SALT'),
     ],
 
-    'Export' => [
-        'apiKey' => env('EXPORT_API_KEY', ''),
-        'zipPassword' => env('EXPORT_ZIP_PASSWORD', ''),
+
+    'AdminAuth' => [
+        'issuer' => env('ADMIN_TOTP_ISSUER', 'S-NICK Event Insurance'),
     ],
 
     /*
@@ -424,6 +424,15 @@ return [
      */
     'Session' => [
         'defaults' => 'php',
+        'timeout' => 30,
+        'cookie' => 'snick_admin_session',
+        'cookiePath' => '/',
+        'ini' => [
+            'session.use_strict_mode' => 1,
+            'session.cookie_httponly' => 1,
+            'session.cookie_secure' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN) ? 0 : 1,
+            'session.cookie_samesite' => 'Lax',
+        ],
     ],
 
     /**

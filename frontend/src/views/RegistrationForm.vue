@@ -76,6 +76,7 @@ onMounted(async () => {
     store.invitedName = data.invitedName
     store.policyVersion = data.policyVersion
     store.events = data.events || []
+    if (!store.form.event_id && data.eventId) store.form.event_id = data.eventId
     if (!store.form.full_name) store.form.full_name = data.invitedName
   } catch (error) {
     loadError.value = apiMessage(error, 'このURLを確認できませんでした。')
@@ -219,7 +220,7 @@ onMounted(async () => {
             <li>法令に基づく場合を除き、上記以外の目的で利用または第三者提供しません。</li>
             <li>取得した情報は適切な安全管理措置を講じ、保管期間終了後に適切な方法で削除します。</li>
           </ul>
-          <p class="small text-secondary mb-0">お問い合わせ先：S-NICK イベント保険担当（連絡先は運用開始前に記載してください）</p>
+          <p class="small text-secondary mb-0">お問い合わせは、S-NICKイベント保険担当　三浦彩花（clara@s-nick.com）までメールでご連絡ください。</p>
         </div>
         <div class="consent-box" :class="{ 'has-error': errors.privacy_consent }">
           <div class="form-check">
