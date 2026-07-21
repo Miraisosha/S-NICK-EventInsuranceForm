@@ -84,6 +84,43 @@ class AdminEventManagementControllerTest extends TestCase
         $this->assertArrayNotHasKey('url', $this->payload()['members'][0]);
     }
 
+    public function testPendingMembersCanBeBulkIssuedFromOneNamePerLine(): void
+    {
+        $event = $this->createEvent(103, [
+            'event_name' => 'Bulk Invitation Event',
+            'event_date' => '2026-08-05',
+            'location' => 'Bulk Court',
+        ]);
+
+        $this->requestJson('post', '/api/admin/events/' . $event->id . '/pending/bulk', [
+            'text' => "  山田 太郎  \r\n\r\n佐藤 花子\n   \n山田 太郎",
+            'days' => 14,
+        ]);
+
+        $this->assertResponseCode(201);
+        $payload = $this->payload();
+        $this->assertSame(3, $payload['count']);
+        $this->assertSame(['山田 太郎', '佐藤 花子', '山田 太郎'], array_column($payload['members'], 'invited_name'));
+        $this->assertStringStartsWith('http://localhost:5173/register/', $payload['members'][0]['url']);
+        $this->assertSame(3, $this->fetchTable('InsuranceMembers')->find()->count());
+    }
+
+    public function testPendingMemberBulkIssueRejectsEmptyInput(): void
+    {
+        $event = $this->createEvent(104, [
+            'event_name' => 'Empty Bulk Event',
+            'event_date' => '2026-08-06',
+            'location' => 'Bulk Court',
+        ]);
+
+        $this->requestJson('post', '/api/admin/events/' . $event->id . '/pending/bulk', [
+            'text' => "\r\n  \n",
+        ]);
+
+        $this->assertResponseCode(422);
+        $this->assertSame(0, $this->fetchTable('InsuranceMembers')->find()->count());
+    }
+
     public function testEventExportReturnsOneTimePasswordHeader(): void
     {
         $event = $this->createEvent(102, [

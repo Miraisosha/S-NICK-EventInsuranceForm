@@ -48,6 +48,7 @@ export const adminApi = {
   deleteEvent: (eventId) => adminWrite('delete', `/admin/events/${eventId}`),
   listPendingMembers: (eventId) => client.get(`/admin/events/${eventId}/pending`),
   issueMemberUrl: (eventId, data) => adminPost(`/admin/events/${eventId}/pending`, data),
+  bulkIssueMemberUrls: (eventId, data) => adminPost(`/admin/events/${eventId}/pending/bulk`, data),
   reissueMemberUrl: (eventId, memberId, data) => adminPost(`/admin/events/${eventId}/pending/${memberId}/reissue`, data),
   listCompletedMembers: (eventId) => client.get(`/admin/events/${eventId}/members`),
   getCompletedMember: (eventId, memberId) => client.get(`/admin/events/${eventId}/members/${memberId}`),

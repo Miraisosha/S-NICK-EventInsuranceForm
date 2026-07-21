@@ -7,8 +7,8 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Configure;
 use Cake\I18n\DateTime;
-use function Cake\Core\env;
 
 class CreateInvitationCommand extends Command
 {
@@ -55,7 +55,17 @@ class CreateInvitationCommand extends Command
             return static::CODE_ERROR;
         }
 
-        $baseUrl = rtrim((string)env('FRONTEND_PUBLIC_URL', 'http://localhost:5173'), '/');
+        $baseUrl = Configure::read('App.frontendPublicUrl');
+        if (!$baseUrl) {
+            $baseUrl = Configure::read('debug')
+                ? Configure::read('App.frontendOrigin')
+                : Configure::read('App.fullBaseUrl');
+        }
+        $baseUrl = (string)($baseUrl
+            ?: Configure::read('App.frontendOrigin')
+            ?: Configure::read('App.fullBaseUrl')
+            ?: 'http://localhost:5173');
+        $baseUrl = rtrim($baseUrl, '/');
         $io->out('<success>登録URLを発行しました。</success>');
         $io->out(sprintf('%s/register/%s', $baseUrl, $token));
 

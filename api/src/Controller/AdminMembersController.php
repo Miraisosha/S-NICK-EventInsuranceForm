@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Core\Configure;
 use Cake\Http\Response;
 use Cake\I18n\DateTime;
-use function Cake\Core\env;
 
 class AdminMembersController extends AppController
 {
@@ -60,6 +60,70 @@ class AdminMembersController extends AppController
         return $this->json([
             'member' => $this->pendingData($member),
             'url' => $this->registrationUrl($token),
+        ], 201);
+    }
+
+    public function bulkIssue(string $eventId): Response
+    {
+        $this->request->allowMethod(['post']);
+        if ($unauthorized = $this->requireAdmin()) {
+            return $unauthorized;
+        }
+        if (!$this->eventExists($eventId)) {
+            return $this->json(['message' => 'イベントが見つかりません。'], 404);
+        }
+
+        $lines = preg_split('/\R/u', (string)$this->request->getData('text', '')) ?: [];
+        $names = [];
+        foreach ($lines as $lineNumber => $line) {
+            $name = trim($line);
+            if ($name === '') {
+                continue;
+            }
+            if (mb_strlen($name) > 100) {
+                return $this->json([
+                    'message' => sprintf('%d行目の氏名は100文字以内で入力してください。', $lineNumber + 1),
+                ], 422);
+            }
+            $names[] = $name;
+        }
+
+        if ($names === []) {
+            return $this->json(['message' => '登録する氏名を1名以上入力してください。'], 422);
+        }
+        if (count($names) > 500) {
+            return $this->json(['message' => '一度に登録できる人数は500名までです。'], 422);
+        }
+
+        $days = min(365, max(1, (int)$this->request->getData('days', 30)));
+        $table = $this->fetchTable('InsuranceMembers');
+
+        try {
+            $members = $table->getConnection()->transactional(function () use ($table, $eventId, $names, $days): array {
+                $results = [];
+                foreach ($names as $name) {
+                    [$token, $tokenHash] = $this->newToken();
+                    $member = $table->newEmptyEntity();
+                    $member->set('event_id', (int)$eventId);
+                    $member->set('invited_name', $name);
+                    $member->set('token_hash', $tokenHash);
+                    $member->set('token_expires_at', DateTime::now()->addDays($days));
+                    $table->saveOrFail($member);
+
+                    $results[] = $this->pendingData($member) + [
+                        'url' => $this->registrationUrl($token),
+                    ];
+                }
+
+                return $results;
+            });
+        } catch (\Throwable) {
+            return $this->json(['message' => '加入前ユーザーを一括登録できませんでした。'], 500);
+        }
+
+        return $this->json([
+            'count' => count($members),
+            'members' => $members,
         ], 201);
     }
 
@@ -150,7 +214,17 @@ class AdminMembersController extends AppController
 
     private function registrationUrl(string $token): string
     {
-        $baseUrl = rtrim((string)env('FRONTEND_PUBLIC_URL', 'http://localhost:5173'), '/');
+        $baseUrl = Configure::read('App.frontendPublicUrl');
+        if (!$baseUrl) {
+            $baseUrl = Configure::read('debug')
+                ? Configure::read('App.frontendOrigin')
+                : Configure::read('App.fullBaseUrl');
+        }
+        $baseUrl = (string)($baseUrl
+            ?: Configure::read('App.frontendOrigin')
+            ?: Configure::read('App.fullBaseUrl')
+            ?: 'http://localhost:5173');
+        $baseUrl = rtrim($baseUrl, '/');
 
         return sprintf('%s/register/%s', $baseUrl, $token);
     }

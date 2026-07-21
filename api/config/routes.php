@@ -24,6 +24,7 @@ return function (RouteBuilder $routes): void {
         $builder->delete('/admin/events/{id}', ['controller' => 'AdminEvents', 'action' => 'delete'])->setPass(['id']);
         $builder->get('/admin/events/{eventId}/pending', ['controller' => 'AdminMembers', 'action' => 'pending'])->setPass(['eventId']);
         $builder->post('/admin/events/{eventId}/pending', ['controller' => 'AdminMembers', 'action' => 'issue'])->setPass(['eventId']);
+        $builder->post('/admin/events/{eventId}/pending/bulk', ['controller' => 'AdminMembers', 'action' => 'bulkIssue'])->setPass(['eventId']);
         $builder->post('/admin/events/{eventId}/pending/{memberId}/reissue', ['controller' => 'AdminMembers', 'action' => 'reissue'])->setPass(['eventId', 'memberId']);
         $builder->get('/admin/events/{eventId}/members', ['controller' => 'AdminMembers', 'action' => 'completed'])->setPass(['eventId']);
         $builder->get('/admin/events/{eventId}/members/{memberId}', ['controller' => 'AdminMembers', 'action' => 'viewCompleted'])->setPass(['eventId', 'memberId']);
