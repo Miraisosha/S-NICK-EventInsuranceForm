@@ -54,6 +54,7 @@ return [
         'encoding' => env('APP_ENCODING', 'UTF-8'),
         'defaultLocale' => env('APP_DEFAULT_LOCALE', 'en_US'),
         'defaultTimezone' => env('APP_DEFAULT_TIMEZONE', 'UTC'),
+        'frontendOrigin' => env('FRONTEND_ORIGIN', 'http://localhost:5173'),
         'base' => false,
         'dir' => 'src',
         'webroot' => 'webroot',
@@ -79,6 +80,11 @@ return [
      */
     'Security' => [
         'salt' => env('SECURITY_SALT'),
+    ],
+
+
+    'AdminAuth' => [
+        'issuer' => env('ADMIN_TOTP_ISSUER', 'S-NICK Event Insurance'),
     ],
 
     /*
@@ -418,6 +424,15 @@ return [
      */
     'Session' => [
         'defaults' => 'php',
+        'timeout' => 30,
+        'cookie' => 'snick_admin_session',
+        'cookiePath' => '/',
+        'ini' => [
+            'session.use_strict_mode' => 1,
+            'session.cookie_httponly' => 1,
+            'session.cookie_secure' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN) ? 0 : 1,
+            'session.cookie_samesite' => 'Lax',
+        ],
     ],
 
     /**

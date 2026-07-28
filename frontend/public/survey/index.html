@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>イベントアンケート | S-NICK</title>
+  <link rel="stylesheet" href="/survey/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <img class="brand-logo" src="/brand/snick-logo.png" alt="S-NICK">
+      <span class="header-title">イベントアンケート</span>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <section class="hero">
+      <p class="eyebrow">EVENT SURVEY</p>
+      <h1>イベントアンケート</h1>
+      <p>今後のイベントをより良くするため、率直なご意見をお聞かせください。</p>
+    </section>
+
+    <form id="survey-form" novalidate>
+      <div id="form-message" class="message" role="alert" tabindex="-1"></div>
+
+      <section class="card">
+        <div class="intro-grid">
+          <div class="field">
+            <label class="field-label" for="event_id">参加したイベント<span class="required">必須</span></label>
+            <select id="event_id" name="event_id" required>
+              <option value="">イベントを選択してください</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="insurance_member_id">お名前<span class="required">必須</span></label>
+            <select id="insurance_member_id" name="insurance_member_id" required disabled>
+              <option value="">先にイベントを選択してください</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="question">
+          <h2><span class="question-number">1.</span>参加した日程<span class="required">必須</span></h2>
+          <p class="question-copy">今回参加した日程を教えてください。</p>
+          <div class="choice-grid three" data-options="1日目のみ|2日目のみ|両日参加" data-name="attendance_days"></div>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">2.</span>イベント全体の満足度<span class="required">必須</span></h2>
+          <p class="question-copy">イベント全体の内容はいかがでしたか。</p>
+          <div class="choice-grid" data-satisfaction data-name="overall_satisfaction"></div>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">3.</span>レッスン・練習内容<span class="required">必須</span></h2>
+          <p class="question-copy">レッスン・練習内容はいかがでしたか。</p>
+          <div class="choice-grid" data-satisfaction data-name="lesson_satisfaction"></div>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">4.</span>スタッフの対応<span class="required">必須</span></h2>
+          <p class="question-copy">スタッフの対応はいかがでしたか。</p>
+          <div class="choice-grid" data-satisfaction data-name="staff_satisfaction"></div>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">5.</span>練習の難易度<span class="required">必須</span></h2>
+          <p class="question-copy">今回の練習の難易度はいかがでしたか。</p>
+          <div class="choice-grid" data-options="とても易しかった|やや易しかった|ちょうど良かった|やや難しかった|とても難しかった" data-name="difficulty"></div>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">6.</span>練習量<span class="required">必須</span></h2>
+          <p class="question-copy">練習量はいかがでしたか。</p>
+          <div class="choice-grid" data-options="少なかった|やや少なかった|ちょうど良かった|やや多かった|多かった" data-name="training_amount"></div>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">7.</span>また参加したいと思いますか<span class="required">必須</span></h2>
+          <div class="choice-grid" data-options="ぜひ参加したい|機会があれば参加したい|どちらとも言えない|あまり参加したくない|参加したくない" data-name="participation_intent"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="question">
+          <h2><span class="question-number">8.</span>その理由<span class="optional">任意</span></h2>
+          <p class="question-copy">上記の回答の理由を教えてください。</p>
+          <textarea name="participation_reason" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">9.</span>特に良かった練習<span class="optional">任意</span></h2>
+          <p class="question-copy">印象に残った練習や、特に良かった内容があれば教えてください。</p>
+          <textarea name="best_training" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">10.</span>改善してほしいこと<span class="optional">任意</span></h2>
+          <p class="question-copy">もっと良くするために改善してほしい点があれば教えてください。</p>
+          <textarea name="improvements" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">11.</span>今後やってほしい練習<span class="optional">任意</span></h2>
+          <p class="question-copy">次回以降に取り入れてほしい練習や企画があれば教えてください。</p>
+          <textarea name="future_training" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
+        </div>
+        <div class="question">
+          <h2><span class="question-number">12.</span>その他ご意見・ご感想<span class="optional">任意</span></h2>
+          <p class="question-copy">その他、ご意見・ご感想がございましたらご自由にご記入ください。</p>
+          <textarea name="other_comments" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button id="submit-button" class="button" type="submit">回答を送信する</button>
+      </div>
+    </form>
+  </main>
+  <script src="/survey/app.js" defer></script>
+</body>
+</html>

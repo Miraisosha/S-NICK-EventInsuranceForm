@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>アンケート回答一覧 | S-NICK管理画面</title>
+  <link rel="stylesheet" href="/survey/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <img class="brand-logo" src="/brand/snick-logo.png" alt="S-NICK">
+      <span class="header-title">管理画面 / アンケート回答</span>
+    </div>
+  </header>
+
+  <main class="page admin-page">
+    <section class="hero">
+      <p class="eyebrow">ADMINISTRATION</p>
+      <h1>アンケート回答一覧</h1>
+      <p>回答者と回答内容の確認、CSVでの一括ダウンロードができます。</p>
+    </section>
+
+    <div id="admin-message" class="message" role="alert"></div>
+
+    <section class="card">
+      <div class="admin-toolbar">
+        <div class="field">
+          <label class="field-label" for="event-filter">イベントで絞り込む</label>
+          <select id="event-filter">
+            <option value="">すべてのイベント</option>
+          </select>
+        </div>
+        <div class="button-row">
+          <a class="button secondary" href="/admin/events">イベント管理へ</a>
+          <button id="download-button" class="button" type="button">回答を一括ダウンロード</button>
+        </div>
+      </div>
+    </section>
+
+    <p id="summary" class="summary">回答を読み込んでいます…</p>
+    <section id="responses"></section>
+  </main>
+  <script src="/admin/surveys/app.js" defer></script>
+</body>
+</html>

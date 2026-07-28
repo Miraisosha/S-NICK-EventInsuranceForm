@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS insurance_members (
     PRIMARY KEY (id),
     UNIQUE KEY uq_insurance_members_token_hash (token_hash),
     KEY idx_insurance_members_submitted_at (submitted_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 開発確認用URL: http://localhost:5173/register/demo-token-for-development-only
 -- 本番ではこの行を削除し、暗号学的に安全なランダムトークンを個別発行してください。

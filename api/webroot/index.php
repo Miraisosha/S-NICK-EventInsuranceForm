@@ -25,6 +25,17 @@ if (PHP_SAPI === 'cli-server') {
         return false;
     }
 }
+
+// Production exposes this webroot through the public /api symlink, while the
+// application routes already include the /api prefix. Prevent CakePHP from
+// auto-detecting /api as a base path and stripping it before route matching.
+$scriptName = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+if (str_ends_with($scriptName, '/api/index.php')) {
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    $_SERVER['PHP_SELF'] = '/index.php';
+}
+unset($scriptName);
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 use App\Application;

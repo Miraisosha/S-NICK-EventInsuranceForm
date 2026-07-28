@@ -11,5 +11,6 @@ class Event extends Entity
         'event_name' => true,
         'event_date' => true,
         'location' => true,
+        'deleted_at' => true,
     ];
 }
