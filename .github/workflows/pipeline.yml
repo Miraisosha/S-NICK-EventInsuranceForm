@@ -43,7 +43,7 @@ jobs:
       SECURITY_SALT: ci-only-security-salt
       DATABASE_URL: mysql://snick:snick_ci_password@127.0.0.1:3306/snick_ci?encoding=utf8mb4
       DATABASE_TEST_URL: sqlite://127.0.0.1/tmp/snick-tests.sqlite
-      APP_FULL_BASE_URL: http://localhost
+      APP_FULL_BASE_URL: http://localhost:5173
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
