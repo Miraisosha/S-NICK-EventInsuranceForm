@@ -30,7 +30,6 @@ class SurveyResponsesTable extends Table
     {
         $validator
             ->integer('event_id')->greaterThan('event_id', 0)->requirePresence('event_id')->notEmptyString('event_id')
-            ->integer('insurance_member_id')->greaterThan('insurance_member_id', 0)->requirePresence('insurance_member_id')->notEmptyString('insurance_member_id')
             ->scalar('attendee_name')->maxLength('attendee_name', 100)->requirePresence('attendee_name')->notEmptyString('attendee_name');
 
         $this->requiredChoice($validator, 'attendance_days', self::ATTENDANCE_CHOICES);
@@ -50,13 +49,7 @@ class SurveyResponsesTable extends Table
 
     public function buildRules(RulesChecker $rules): RulesChecker
     {
-        $rules
-            ->add($rules->existsIn(['event_id'], 'Events'), ['errorField' => 'event_id'])
-            ->add($rules->existsIn(['insurance_member_id'], 'InsuranceMembers'), ['errorField' => 'insurance_member_id'])
-            ->add($rules->isUnique(['event_id', 'insurance_member_id']), [
-                'errorField' => 'insurance_member_id',
-                'message' => 'このイベントのアンケートには回答済みです。',
-            ]);
+        $rules->add($rules->existsIn(['event_id'], 'Events'), ['errorField' => 'event_id']);
 
         return $rules;
     }

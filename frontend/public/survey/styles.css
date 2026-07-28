@@ -24,7 +24,7 @@ body {
   line-height: 1.7;
 }
 
-button, select, textarea { font: inherit; }
+button, input, select, textarea { font: inherit; }
 
 .site-header {
   background: rgba(255,255,255,.96);
@@ -112,7 +112,7 @@ h1 { margin-bottom: 10px; font-size: clamp(27px, 5vw, 40px); line-height: 1.35; 
 .required { color: #fff; background: var(--orange); }
 .optional { color: var(--muted); background: #edf1f5; }
 
-select, textarea {
+input[type="text"], select, textarea {
   width: 100%;
   color: var(--ink);
   background: #fff;
@@ -122,9 +122,10 @@ select, textarea {
   transition: border-color .15s, box-shadow .15s;
 }
 
+input[type="text"] { min-height: 48px; padding: 9px 13px; }
 select { min-height: 48px; padding: 9px 40px 9px 13px; }
 textarea { min-height: 132px; padding: 12px 14px; resize: vertical; }
-select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(23, 102, 168, .15); }
+input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(23, 102, 168, .15); }
 select:disabled { color: #8b95a2; background: #eef2f6; }
 
 .question {

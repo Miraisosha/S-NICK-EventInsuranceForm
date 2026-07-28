@@ -2,7 +2,6 @@
   const satisfaction = ['とても満足', '満足', '普通', 'やや不満', '不満']
   const form = document.querySelector('#survey-form')
   const eventSelect = document.querySelector('#event_id')
-  const memberSelect = document.querySelector('#insurance_member_id')
   const message = document.querySelector('#form-message')
   const submitButton = document.querySelector('#submit-button')
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -47,7 +46,11 @@
   async function loadEvents() {
     try {
       const { events = [] } = await request('/api/surveys/options')
-      eventSelect.innerHTML = '<option value="">イベントを選択してください</option>' + events.map((event) => {
+      if (events.length === 0) {
+        eventSelect.innerHTML = '<option value="">選択できるイベントがありません</option>'
+        return
+      }
+      eventSelect.innerHTML = events.map((event) => {
         const details = [event.date, event.location].filter(Boolean).join(' / ')
         return `<option value="${event.id}">${escapeHtml(event.name)}${details ? `（${escapeHtml(details)}）` : ''}</option>`
       }).join('')
@@ -55,23 +58,6 @@
       showMessage(error.message)
     }
   }
-
-  eventSelect.addEventListener('change', async () => {
-    const eventId = eventSelect.value
-    memberSelect.disabled = true
-    memberSelect.innerHTML = `<option value="">${eventId ? 'お名前を読み込んでいます…' : '先にイベントを選択してください'}</option>`
-    if (!eventId) return
-
-    try {
-      const { members = [] } = await request(`/api/surveys/options?event_id=${encodeURIComponent(eventId)}`)
-      memberSelect.innerHTML = '<option value="">お名前を選択してください</option>' + members.map((member) =>
-        `<option value="${member.id}" ${member.answered ? 'disabled' : ''}>${escapeHtml(member.name)}${member.answered ? '（回答済み）' : ''}</option>`
-      ).join('')
-      memberSelect.disabled = false
-    } catch (error) {
-      showMessage(error.message)
-    }
-  })
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
