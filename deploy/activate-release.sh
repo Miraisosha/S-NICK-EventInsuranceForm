@@ -24,13 +24,19 @@ esac
 
 mkdir -p "$app_root/shared/config" "$app_root/shared/logs" "$app_root/shared/tmp" "$public_dir"
 
-if [[ -f "$app_root/shared/config/app_local.php.next" ]]; then
-  mv "$app_root/shared/config/app_local.php.next" "$app_root/shared/config/app_local.php"
-fi
-[[ -f "$app_root/shared/config/app_local.php" ]] || { echo "Missing app_local.php" >&2; exit 1; }
-chmod 600 "$app_root/shared/config/app_local.php"
+legacy_config="$app_root/api/config/app_local.php"
+shared_config="$app_root/shared/config/app_local.php"
 
-ln -sfn "$app_root/shared/config/app_local.php" "$release_dir/api/config/app_local.php"
+# Preserve the working server-side configuration when switching the legacy
+# installation to release-based deployments for the first time.
+if [[ ! -f "$app_root/current-release" && -f "$legacy_config" ]]; then
+  cp "$legacy_config" "$shared_config"
+fi
+rm -f "$shared_config.next"
+[[ -f "$shared_config" ]] || { echo "Missing app_local.php" >&2; exit 1; }
+chmod 600 "$shared_config"
+
+ln -sfn "$shared_config" "$release_dir/api/config/app_local.php"
 ln -sfn "$app_root/shared/logs" "$release_dir/api/logs"
 ln -sfn "$app_root/shared/tmp" "$release_dir/api/tmp"
 
