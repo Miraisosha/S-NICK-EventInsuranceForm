@@ -36,7 +36,24 @@ class AdminAuthControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function testPasswordAndTotpLoginProtectsAdminEndpoints(): void
+    public function testConfirmedAdminCanLoginWithUsernameAndTotpCode(): void
+    {
+        $this->createAdmin(true);
+
+        $this->postJson('/api/admin/auth/code-login', [
+            'username' => self::USERNAME,
+            'code' => TOTP::createFromSecret(self::SECRET)->now(),
+        ]);
+        $this->assertResponseOk();
+        $this->assertResponseContains('"authenticated":true');
+
+        $admin = $this->fetchTable('AdminUsers')->find()->where(['username' => self::USERNAME])->firstOrFail();
+        $this->session(['Admin' => ['id' => (int)$admin->id, 'username' => self::USERNAME]]);
+        $this->get('/api/admin/events');
+        $this->assertResponseOk();
+    }
+
+    public function testConfirmedAdminCannotUsePasswordLoginAgain(): void
     {
         $this->createAdmin(true);
 
@@ -44,18 +61,33 @@ class AdminAuthControllerTest extends TestCase
             'username' => self::USERNAME,
             'password' => self::PASSWORD,
         ]);
-        $this->assertResponseOk();
-        $this->assertResponseContains('"requiresTotp":true');
 
-        $admin = $this->fetchTable('AdminUsers')->find()->where(['username' => self::USERNAME])->firstOrFail();
-        $this->session(['AdminPending' => ['id' => (int)$admin->id]]);
-        $this->postJson('/api/admin/auth/verify', ['code' => TOTP::createFromSecret(self::SECRET)->now()]);
-        $this->assertResponseOk();
-        $this->assertResponseContains('"authenticated":true');
+        $this->assertResponseCode(409);
+        $this->assertResponseContains('管理者IDと認証コードでログインしてください');
+    }
 
-        $this->session(['Admin' => ['id' => (int)$admin->id, 'username' => self::USERNAME]]);
-        $this->get('/api/admin/events');
-        $this->assertResponseOk();
+    public function testUnconfirmedAdminCannotUseUsernameAndCodeLogin(): void
+    {
+        $this->createAdmin(false);
+
+        $this->postJson('/api/admin/auth/code-login', [
+            'username' => self::USERNAME,
+            'code' => '123456',
+        ]);
+
+        $this->assertResponseCode(401);
+    }
+
+    public function testWrongUsernameIsRejected(): void
+    {
+        $this->createAdmin(true);
+
+        $this->postJson('/api/admin/auth/code-login', [
+            'username' => 'unknown-admin',
+            'code' => TOTP::createFromSecret(self::SECRET)->now(),
+        ]);
+
+        $this->assertResponseCode(401);
     }
 
     public function testFirstLoginReturnsSetupAndRecoveryCodes(): void

@@ -12,6 +12,7 @@ class AdminAuthController extends AppController
 {
     private const MAX_FAILED_ATTEMPTS = 5;
     private const LOCK_MINUTES = 15;
+    private const MAX_CODE_LOGIN_ATTEMPTS = 5;
 
     private AdminTotpService $totp;
 
@@ -63,6 +64,10 @@ class AdminAuthController extends AppController
             return $this->authenticationFailed();
         }
 
+        if ($admin->totp_confirmed_at !== null) {
+            return $this->json(['message' => '認証アプリは登録済みです。管理者IDと認証コードでログインしてください。'], 409);
+        }
+
         $session = $this->request->getSession();
         $session->renew();
         $session->delete('Admin');
@@ -79,15 +84,41 @@ class AdminAuthController extends AppController
             $secret = $this->totp->decryptSecret((string)$admin->totp_secret_encrypted);
         }
 
-        if ($admin->totp_confirmed_at === null) {
-            return $this->json([
-                'requiresSetup' => true,
-                'provisioningUri' => $this->totp->provisioningUri($secret, (string)$admin->username),
-                'manualKey' => $secret,
-            ]);
+        return $this->json([
+            'requiresSetup' => true,
+            'provisioningUri' => $this->totp->provisioningUri($secret, (string)$admin->username),
+            'manualKey' => $secret,
+        ]);
+    }
+
+    public function codeLogin(): Response
+    {
+        $this->request->allowMethod(['post']);
+        $session = $this->request->getSession();
+        $lockedUntil = (int)$session->read('AdminCodeLogin.lockedUntil');
+        if ($lockedUntil > time()) {
+            return $this->json(['message' => '認証に複数回失敗したため、15分後にもう一度お試しください。'], 429);
+        }
+        if ($lockedUntil > 0) {
+            $session->delete('AdminCodeLogin');
         }
 
-        return $this->json(['requiresTotp' => true]);
+        $username = trim((string)$this->request->getData('username'));
+        $admins = $this->fetchTable('AdminUsers');
+        $admin = $username === '' ? null : $admins->find()->where(['username' => $username])->first();
+        if (!$admin instanceof AdminUser || $admin->totp_confirmed_at === null || $this->isLocked($admin)) {
+            $this->recordCodeLoginFailure();
+            usleep(250000);
+            return $this->authenticationFailed('管理者IDまたは認証コードが正しくありません。');
+        }
+
+        $session->renew();
+        $session->delete('Admin');
+        $session->delete('AdminPending');
+        $session->delete('AdminCodeLogin');
+        $session->write('AdminPending.id', (int)$admin->id);
+
+        return $this->verify();
     }
 
     public function verify(): Response
@@ -116,7 +147,7 @@ class AdminAuthController extends AppController
             || ($counter !== null && $admin->last_totp_counter !== null && $counter <= (int)$admin->last_totp_counter)
         ) {
             $this->recordFailure($admin);
-            return $this->authenticationFailed('認証コードが正しくありません。');
+            return $this->authenticationFailed('管理者IDまたは認証コードが正しくありません。');
         }
 
         $isSetup = $admin->totp_confirmed_at === null;
@@ -193,6 +224,16 @@ class AdminAuthController extends AppController
             $admin->locked_until = DateTime::now()->addMinutes(self::LOCK_MINUTES);
         }
         $this->fetchTable('AdminUsers')->save($admin);
+    }
+
+    private function recordCodeLoginFailure(): void
+    {
+        $session = $this->request->getSession();
+        $attempts = (int)$session->read('AdminCodeLogin.attempts') + 1;
+        $session->write('AdminCodeLogin.attempts', $attempts);
+        if ($attempts >= self::MAX_CODE_LOGIN_ATTEMPTS) {
+            $session->write('AdminCodeLogin.lockedUntil', time() + (self::LOCK_MINUTES * 60));
+        }
     }
 
     private function authenticationFailed(string $message = '管理者IDまたはパスワードが正しくありません。'): Response

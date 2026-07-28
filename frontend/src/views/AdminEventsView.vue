@@ -46,7 +46,10 @@ onMounted(async () => {
     <div class="card-body">
       <div class="admin-page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div><p class="brand-kicker mb-1">ADMINISTRATION</p><h2 class="h3 fw-bold mb-0">イベント一覧</h2></div>
-        <div class="admin-page-actions"><RouterLink class="btn btn-primary" :to="{ name: 'admin-event-new' }">新規登録</RouterLink></div>
+        <div class="admin-page-actions">
+          <a class="btn btn-outline-primary" href="/admin/surveys/">アンケート回答</a>
+          <RouterLink class="btn btn-primary" :to="{ name: 'admin-event-new' }">新規登録</RouterLink>
+        </div>
       </div>
       <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
       <p v-if="loading" class="text-secondary">読み込み中…</p>

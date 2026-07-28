@@ -36,6 +36,7 @@ export const invitationApi = {
 export const adminApi = {
   session: () => client.get('/admin/auth/session'),
   login: (credentials) => adminPost('/admin/auth/login', credentials),
+  codeLogin: (username, code) => adminPost('/admin/auth/code-login', { username, code }),
   verify: (code) => adminPost('/admin/auth/verify', { code }),
   logout: () => adminPost('/admin/auth/logout'),
   downloadRegistrations: () => client.get('/admin/registrations.csv', {
