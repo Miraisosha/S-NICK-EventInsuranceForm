@@ -100,8 +100,6 @@ jobs:
       APP_ROOT: ${{ vars.APP_ROOT || '/home/r1216602/apps/snick-insurance' }}
       PUBLIC_DIR: ${{ vars.PUBLIC_DIR || '/home/r1216602/public_html/insurance.s-nick.com' }}
       APP_URL: ${{ vars.APP_URL || 'https://insurance.s-nick.com' }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      SECURITY_SALT: ${{ secrets.SECURITY_SALT }}
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -127,7 +125,6 @@ jobs:
           rsync -a frontend/dist/ .deploy/release/public/
           cp deploy/public.htaccess .deploy/release/public/.htaccess
           cp -R deploy .deploy/release/deploy
-          php deploy/build_app_local.php .deploy/app_local.php
       - name: Configure SSH
         shell: bash
         env:
@@ -155,7 +152,5 @@ jobs:
             "mkdir -p '$release_dir' '$APP_ROOT/shared/config'"
           rsync -az --delete -e "ssh -p $SSH_PORT" \
             .deploy/release/ "$SSH_USER@$SSH_HOST:$release_dir/"
-          rsync -az -e "ssh -p $SSH_PORT" \
-            .deploy/app_local.php "$SSH_USER@$SSH_HOST:$APP_ROOT/shared/config/app_local.php.next"
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
             "bash '$release_dir/deploy/activate-release.sh' '$APP_ROOT' '$PUBLIC_DIR' '$release_id'"
