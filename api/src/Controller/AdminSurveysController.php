@@ -36,10 +36,11 @@ class AdminSurveysController extends AppController
         fputcsv($stream, [
             '回答日時', 'イベント名', '開催日', '氏名', '参加日程',
             'イベント全体の満足度', '練習・チーム戦の内容', 'スタッフの対応',
-            'スペシャルゲストの満足度', '審判勉強会の満足度（1日目参加の方）',
-            '練習・ゲームの難易度', '運動量', 'また参加したいと思いますか',
+            'スペシャルゲストの満足度', '練習・ゲームの難易度',
+            '運動量', 'また参加したいと思いますか',
             'その理由', '特に良かった練習', '改善してほしいこと',
-            '今後やってほしい練習', 'その他ご意見・ご感想',
+            '今後やってほしい練習', '審判勉強会の満足度（1日目参加の方）',
+            'その他ご意見・ご感想',
         ], ',', '"', '');
 
         foreach ($this->responseQuery()->all() as $item) {
@@ -49,10 +50,10 @@ class AdminSurveysController extends AppController
                 $data['attendee_name'], $data['attendance_days'],
                 $data['overall_satisfaction'], $data['lesson_satisfaction'],
                 $data['staff_satisfaction'], $data['special_guest_satisfaction'],
-                $data['referee_workshop_feedback'], $data['difficulty'], $data['training_amount'],
+                $data['difficulty'], $data['training_amount'],
                 $data['participation_intent'], $data['participation_reason'],
                 $data['best_training'], $data['improvements'], $data['future_training'],
-                $data['other_comments'],
+                $data['referee_workshop_feedback'], $data['other_comments'],
             ]), ',', '"', '');
         }
 
