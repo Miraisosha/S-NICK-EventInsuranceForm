@@ -8,10 +8,12 @@
   const answerLabels = {
     attendance_days: '参加した日程',
     overall_satisfaction: 'イベント全体の満足度',
-    lesson_satisfaction: 'レッスン・練習内容',
+    lesson_satisfaction: '練習・チーム戦の内容',
     staff_satisfaction: 'スタッフの対応',
-    difficulty: '練習の難易度',
-    training_amount: '練習量',
+    special_guest_satisfaction: 'スペシャルゲストの満足度',
+    referee_workshop_feedback: '審判勉強会の満足度（1日目参加の方）',
+    difficulty: '練習・ゲームの難易度',
+    training_amount: '運動量',
     participation_intent: 'また参加したいと思いますか',
     participation_reason: 'その理由',
     best_training: '特に良かった練習',
@@ -62,7 +64,7 @@
       <details class="card response-card">
         <summary>
           <time>${escapeHtml(response.submitted_at)}</time>
-          <strong>${escapeHtml(response.attendee_name)}</strong>
+          <strong>${escapeHtml(response.attendee_name) || '（名前未入力）'}</strong>
           <span>${escapeHtml(response.event_name)}（${escapeHtml(response.event_date)}）</span>
           <span class="pill">${escapeHtml(response.overall_satisfaction)}</span>
         </summary>

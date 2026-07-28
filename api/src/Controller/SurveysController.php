@@ -33,8 +33,8 @@ class SurveysController extends AppController
         ]);
         $attendeeName = trim((string)$this->request->getData('attendee_name'));
 
-        if ($eventId === false || $eventId === null || $attendeeName === '') {
-            return $this->json(['message' => '参加したイベントを選択し、お名前を入力してください。'], 422);
+        if ($eventId === false || $eventId === null) {
+            return $this->json(['message' => '参加したイベントを選択してください。'], 422);
         }
 
         if (!$this->fetchTable('Events')->exists(['id' => $eventId, 'deleted_at IS' => null])) {
@@ -43,7 +43,8 @@ class SurveysController extends AppController
 
         $fields = [
             'attendance_days', 'overall_satisfaction', 'lesson_satisfaction',
-            'staff_satisfaction', 'difficulty', 'training_amount', 'participation_intent',
+            'staff_satisfaction', 'special_guest_satisfaction', 'referee_workshop_feedback',
+            'difficulty', 'training_amount', 'participation_intent',
             'participation_reason', 'best_training', 'improvements', 'future_training', 'other_comments',
         ];
         $payload = array_intersect_key((array)$this->request->getData(), array_flip($fields));

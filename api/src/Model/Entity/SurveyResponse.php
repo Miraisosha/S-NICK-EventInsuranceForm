@@ -15,6 +15,8 @@ class SurveyResponse extends Entity
         'overall_satisfaction' => true,
         'lesson_satisfaction' => true,
         'staff_satisfaction' => true,
+        'special_guest_satisfaction' => true,
+        'referee_workshop_feedback' => true,
         'difficulty' => true,
         'training_amount' => true,
         'participation_intent' => true,

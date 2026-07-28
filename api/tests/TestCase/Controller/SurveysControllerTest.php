@@ -47,7 +47,7 @@ class SurveysControllerTest extends TestCase
     {
         $event = $this->createEvent();
         $data = $this->responseData($event->id);
-        unset($data['overall_satisfaction']);
+        unset($data['special_guest_satisfaction']);
 
         $this->postJson('/api/surveys/responses', $data);
 
@@ -55,15 +55,15 @@ class SurveysControllerTest extends TestCase
         $this->assertSame(0, $this->fetchTable('SurveyResponses')->find()->count());
     }
 
-    public function testSubmissionRequiresAttendeeName(): void
+    public function testSubmissionAllowsEmptyAttendeeName(): void
     {
         $event = $this->createEvent();
         $data = $this->responseData($event->id, '   ');
 
         $this->postJson('/api/surveys/responses', $data);
 
-        $this->assertResponseCode(422);
-        $this->assertSame(0, $this->fetchTable('SurveyResponses')->find()->count());
+        $this->assertResponseCode(201);
+        $this->assertSame('', $this->fetchTable('SurveyResponses')->find()->firstOrFail()->attendee_name);
     }
 
     public function testAdminCanListAndExportResponses(): void
@@ -77,6 +77,8 @@ class SurveysControllerTest extends TestCase
         $this->assertResponseOk();
         $this->assertSame('Survey User', $this->payload()['responses'][0]['attendee_name']);
         $this->assertSame('とても満足', $this->payload()['responses'][0]['overall_satisfaction']);
+        $this->assertSame('満足', $this->payload()['responses'][0]['special_guest_satisfaction']);
+        $this->assertSame('勉強になりました。', $this->payload()['responses'][0]['referee_workshop_feedback']);
 
         $this->get('/api/admin/surveys.csv');
         $this->assertResponseOk();
@@ -105,6 +107,8 @@ class SurveysControllerTest extends TestCase
             'overall_satisfaction' => 'とても満足',
             'lesson_satisfaction' => '満足',
             'staff_satisfaction' => 'とても満足',
+            'special_guest_satisfaction' => '満足',
+            'referee_workshop_feedback' => '勉強になりました。',
             'difficulty' => 'ちょうど良かった',
             'training_amount' => 'ちょうど良かった',
             'participation_intent' => 'ぜひ参加したい',
