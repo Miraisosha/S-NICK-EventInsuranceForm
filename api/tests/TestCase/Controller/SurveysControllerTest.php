@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
-use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
@@ -29,35 +28,37 @@ class SurveysControllerTest extends TestCase
 
     public function testOptionsAndSubmissionFlow(): void
     {
-        [$event, $member] = $this->createParticipant();
+        $event = $this->createEvent();
 
         $this->get('/api/surveys/options');
         $this->assertResponseOk();
         $this->assertSame('Survey Event', $this->payload()['events'][0]['name']);
 
-        $this->get('/api/surveys/options?event_id=' . $event->id);
-        $this->assertResponseOk();
-        $this->assertSame('Survey User', $this->payload()['members'][0]['name']);
-        $this->assertFalse($this->payload()['members'][0]['answered']);
-
-        $this->postJson('/api/surveys/responses', $this->responseData($event->id, $member->id));
+        $this->postJson('/api/surveys/responses', $this->responseData($event->id, '  Survey User  '));
         $this->assertResponseCode(201);
         $this->assertSame(1, $this->fetchTable('SurveyResponses')->find()->count());
-
-        $this->get('/api/surveys/options?event_id=' . $event->id);
-        $this->assertResponseOk();
-        $this->assertTrue($this->payload()['members'][0]['answered']);
-
-        $this->postJson('/api/surveys/responses', $this->responseData($event->id, $member->id));
-        $this->assertResponseCode(422);
-        $this->assertSame(1, $this->fetchTable('SurveyResponses')->find()->count());
+        $this->assertSame(
+            'Survey User',
+            $this->fetchTable('SurveyResponses')->find()->firstOrFail()->attendee_name,
+        );
     }
 
     public function testSubmissionRequiresAllMandatoryAnswers(): void
     {
-        [$event, $member] = $this->createParticipant();
-        $data = $this->responseData($event->id, $member->id);
+        $event = $this->createEvent();
+        $data = $this->responseData($event->id);
         unset($data['overall_satisfaction']);
+
+        $this->postJson('/api/surveys/responses', $data);
+
+        $this->assertResponseCode(422);
+        $this->assertSame(0, $this->fetchTable('SurveyResponses')->find()->count());
+    }
+
+    public function testSubmissionRequiresAttendeeName(): void
+    {
+        $event = $this->createEvent();
+        $data = $this->responseData($event->id, '   ');
 
         $this->postJson('/api/surveys/responses', $data);
 
@@ -67,8 +68,8 @@ class SurveysControllerTest extends TestCase
 
     public function testAdminCanListAndExportResponses(): void
     {
-        [$event, $member] = $this->createParticipant();
-        $this->postJson('/api/surveys/responses', $this->responseData($event->id, $member->id));
+        $event = $this->createEvent();
+        $this->postJson('/api/surveys/responses', $this->responseData($event->id));
         $this->assertResponseCode(201);
 
         $this->session(['Admin' => ['id' => 1, 'username' => 'test-admin']]);
@@ -83,7 +84,7 @@ class SurveysControllerTest extends TestCase
         $this->assertStringContainsString('Survey User', (string)$this->_response->getBody());
     }
 
-    private function createParticipant(): array
+    private function createEvent(): object
     {
         $event = $this->fetchTable('Events')->newEntity([
             'event_name' => 'Survey Event',
@@ -92,26 +93,14 @@ class SurveysControllerTest extends TestCase
         ]);
         $this->fetchTable('Events')->saveOrFail($event);
 
-        $member = $this->fetchTable('InsuranceMembers')->newEmptyEntity();
-        foreach ([
-            'event_id' => $event->id,
-            'invited_name' => 'Survey User',
-            'full_name' => 'Survey User',
-            'token_hash' => hash('sha256', 'survey-test-token'),
-            'submitted_at' => DateTime::now(),
-        ] as $field => $value) {
-            $member->set($field, $value);
-        }
-        $this->fetchTable('InsuranceMembers')->saveOrFail($member, ['validate' => false]);
-
-        return [$event, $member];
+        return $event;
     }
 
-    private function responseData(int $eventId, int $memberId): array
+    private function responseData(int $eventId, string $attendeeName = 'Survey User'): array
     {
         return [
             'event_id' => $eventId,
-            'insurance_member_id' => $memberId,
+            'attendee_name' => $attendeeName,
             'attendance_days' => '両日参加',
             'overall_satisfaction' => 'とても満足',
             'lesson_satisfaction' => '満足',
