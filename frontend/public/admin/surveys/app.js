@@ -11,7 +11,6 @@
     lesson_satisfaction: '練習・チーム戦の内容',
     staff_satisfaction: 'スタッフの対応',
     special_guest_satisfaction: 'スペシャルゲストの満足度',
-    referee_workshop_feedback: '審判勉強会の満足度（1日目参加の方）',
     difficulty: '練習・ゲームの難易度',
     training_amount: '運動量',
     participation_intent: 'また参加したいと思いますか',
@@ -19,6 +18,7 @@
     best_training: '特に良かった練習',
     improvements: '改善してほしいこと',
     future_training: '今後やってほしい練習',
+    referee_workshop_feedback: '審判勉強会の満足度（1日目参加の方）',
     other_comments: 'その他ご意見・ご感想',
   }
 
