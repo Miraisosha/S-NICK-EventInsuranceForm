@@ -30,17 +30,29 @@ class SurveyResponsesTable extends Table
     {
         $validator
             ->integer('event_id')->greaterThan('event_id', 0)->requirePresence('event_id')->notEmptyString('event_id')
-            ->scalar('attendee_name')->maxLength('attendee_name', 100)->requirePresence('attendee_name')->notEmptyString('attendee_name');
+            ->scalar('attendee_name')->maxLength('attendee_name', 100)->allowEmptyString('attendee_name');
 
         $this->requiredChoice($validator, 'attendance_days', self::ATTENDANCE_CHOICES);
-        foreach (['overall_satisfaction', 'lesson_satisfaction', 'staff_satisfaction'] as $field) {
+        foreach ([
+            'overall_satisfaction',
+            'lesson_satisfaction',
+            'staff_satisfaction',
+            'special_guest_satisfaction',
+        ] as $field) {
             $this->requiredChoice($validator, $field, self::SATISFACTION_CHOICES);
         }
         $this->requiredChoice($validator, 'difficulty', self::DIFFICULTY_CHOICES);
         $this->requiredChoice($validator, 'training_amount', self::AMOUNT_CHOICES);
         $this->requiredChoice($validator, 'participation_intent', self::INTENT_CHOICES);
 
-        foreach (['participation_reason', 'best_training', 'improvements', 'future_training', 'other_comments'] as $field) {
+        foreach ([
+            'referee_workshop_feedback',
+            'participation_reason',
+            'best_training',
+            'improvements',
+            'future_training',
+            'other_comments',
+        ] as $field) {
             $validator->scalar($field)->maxLength($field, 2000)->allowEmptyString($field);
         }
 

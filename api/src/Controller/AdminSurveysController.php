@@ -35,8 +35,9 @@ class AdminSurveysController extends AppController
         fwrite($stream, "\xEF\xBB\xBF");
         fputcsv($stream, [
             '回答日時', 'イベント名', '開催日', '氏名', '参加日程',
-            'イベント全体の満足度', 'レッスン・練習内容', 'スタッフの対応',
-            '練習の難易度', '練習量', 'また参加したいと思いますか',
+            'イベント全体の満足度', '練習・チーム戦の内容', 'スタッフの対応',
+            'スペシャルゲストの満足度', '審判勉強会の満足度（1日目参加の方）',
+            '練習・ゲームの難易度', '運動量', 'また参加したいと思いますか',
             'その理由', '特に良かった練習', '改善してほしいこと',
             '今後やってほしい練習', 'その他ご意見・ご感想',
         ], ',', '"', '');
@@ -47,7 +48,8 @@ class AdminSurveysController extends AppController
                 $data['submitted_at'], $data['event_name'], $data['event_date'],
                 $data['attendee_name'], $data['attendance_days'],
                 $data['overall_satisfaction'], $data['lesson_satisfaction'],
-                $data['staff_satisfaction'], $data['difficulty'], $data['training_amount'],
+                $data['staff_satisfaction'], $data['special_guest_satisfaction'],
+                $data['referee_workshop_feedback'], $data['difficulty'], $data['training_amount'],
                 $data['participation_intent'], $data['participation_reason'],
                 $data['best_training'], $data['improvements'], $data['future_training'],
                 $data['other_comments'],
@@ -101,6 +103,8 @@ class AdminSurveysController extends AppController
             'overall_satisfaction' => $item->overall_satisfaction,
             'lesson_satisfaction' => $item->lesson_satisfaction,
             'staff_satisfaction' => $item->staff_satisfaction,
+            'special_guest_satisfaction' => $item->special_guest_satisfaction,
+            'referee_workshop_feedback' => $item->referee_workshop_feedback,
             'difficulty' => $item->difficulty,
             'training_amount' => $item->training_amount,
             'participation_intent' => $item->participation_intent,
