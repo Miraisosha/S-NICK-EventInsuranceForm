@@ -404,6 +404,16 @@ select:disabled { color: #8b95a2; background: #eef2f6; }
 .question:last-child { padding-bottom: 0; }
 .question-number { margin-right: 8px; color: var(--blue); font-weight: 850; }
 .question h2 { margin-bottom: 3px; font-size: 19px; }
+.question h2::before {
+  display: inline-block;
+  width: 42px;
+  height: 42px;
+  margin: -4px 10px -4px 0;
+  vertical-align: middle;
+  content: "";
+  background: url("/brand/snick-question-icon.png") center / contain no-repeat;
+  filter: drop-shadow(0 3px 4px rgba(14, 49, 85, .18));
+}
 .question-copy { margin-bottom: 16px; color: var(--muted); font-size: 14px; }
 
 .choice-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
@@ -549,6 +559,7 @@ select:disabled { color: #8b95a2; background: #eef2f6; }
   .intro-grid, .answer-grid { grid-template-columns: 1fr; }
   .choice-grid, .choice-grid.three { grid-template-columns: 1fr; }
   .choice { min-height: 48px; justify-content: flex-start; padding-left: 16px; }
+  .question h2::before { width: 36px; height: 36px; margin-right: 8px; }
   .admin-toolbar { align-items: stretch; flex-direction: column; }
   .admin-toolbar .field { max-width: none; }
   .response-card summary { grid-template-columns: 1fr auto; gap: 4px 12px; }
