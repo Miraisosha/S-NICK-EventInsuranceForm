@@ -144,6 +144,18 @@ h1 { margin-bottom: 10px; font-size: clamp(27px, 5vw, 40px); line-height: 1.35; 
   text-shadow: 0 3px 0 rgba(10, 41, 74, .18);
 }
 
+.mission-title-line { display: block; }
+.mission-title-finale { display: block; white-space: nowrap; }
+
+.mission-title-icon {
+  width: 88px;
+  height: auto;
+  margin-left: 8px;
+  vertical-align: middle;
+  filter: drop-shadow(0 4px 6px rgba(7, 35, 63, .22));
+  transform: translateY(-2px);
+}
+
 .hero-lead {
   max-width: 34rem;
   margin-bottom: 18px;
@@ -541,6 +553,7 @@ select:disabled { color: #8b95a2; background: #eef2f6; }
   .page { margin-top: 24px; }
   .mission-hero { min-height: 0; grid-template-columns: 1fr; gap: 10px; padding-bottom: 18px; }
   .mission-hero::after { left: auto; right: 28px; top: 178px; }
+  .mission-title-icon { width: 72px; margin-left: 5px; }
   .hero-tags { gap: 6px; }
   .hero-tags span { padding: 5px 9px; }
   .hero-visual { min-height: 165px; justify-content: flex-start; }
