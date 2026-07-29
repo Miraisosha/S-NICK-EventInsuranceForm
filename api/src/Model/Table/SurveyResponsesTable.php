@@ -11,6 +11,7 @@ class SurveyResponsesTable extends Table
 {
     public const SATISFACTION_CHOICES = ['とても満足', '満足', '普通', 'やや不満', '不満'];
     public const ATTENDANCE_CHOICES = ['1日目のみ', '2日目のみ', '両日参加'];
+    public const ENJOYMENT_CHOICES = ['とても楽しかった', '楽しかった', '普通', '楽しくなかった', 'すごく楽しくなかった'];
     public const DIFFICULTY_CHOICES = ['とても易しかった', 'やや易しかった', 'ちょうど良かった', 'やや難しかった', 'とても難しかった'];
     public const AMOUNT_CHOICES = ['少なかった', 'やや少なかった', 'ちょうど良かった', 'やや多かった', '多かった'];
     public const INTENT_CHOICES = ['ぜひ参加したい', '機会があれば参加したい', 'どちらとも言えない', 'あまり参加したくない', '参加したくない'];
@@ -33,6 +34,7 @@ class SurveyResponsesTable extends Table
             ->scalar('attendee_name')->maxLength('attendee_name', 100)->allowEmptyString('attendee_name');
 
         $this->requiredChoice($validator, 'attendance_days', self::ATTENDANCE_CHOICES);
+        $this->requiredChoice($validator, 'event_enjoyment', self::ENJOYMENT_CHOICES);
         foreach ([
             'overall_satisfaction',
             'lesson_satisfaction',

@@ -43,7 +43,7 @@ ln -sfn "$app_root/shared/tmp" "$release_dir/api/tmp"
 cd "$release_dir/api"
 /usr/bin/php -r "exit(extension_loaded('sodium') ? 0 : 1);" || { echo "PHP sodium extension is required" >&2; exit 1; }
 /usr/bin/php bin/cake.php migrations migrate
-/usr/bin/php bin/cake.php cache clear _cake_model_
+/usr/bin/php bin/cake.php cache clear_all
 
 if [[ -e "$public_dir/api" && ! -L "$public_dir/api" ]]; then
   echo "Refusing to replace non-symlink path: $public_dir/api" >&2

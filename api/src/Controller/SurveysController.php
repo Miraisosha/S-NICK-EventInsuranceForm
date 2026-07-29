@@ -42,7 +42,7 @@ class SurveysController extends AppController
         }
 
         $fields = [
-            'attendance_days', 'overall_satisfaction', 'lesson_satisfaction',
+            'attendance_days', 'event_enjoyment', 'overall_satisfaction', 'lesson_satisfaction',
             'staff_satisfaction', 'special_guest_satisfaction', 'referee_workshop_feedback',
             'difficulty', 'training_amount', 'participation_intent',
             'participation_reason', 'best_training', 'improvements', 'future_training', 'other_comments',
