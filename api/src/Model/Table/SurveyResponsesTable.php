@@ -13,7 +13,7 @@ class SurveyResponsesTable extends Table
     public const ATTENDANCE_CHOICES = ['1日目のみ', '2日目のみ', '両日参加'];
     public const ENJOYMENT_CHOICES = ['とても楽しかった', '楽しかった', '普通', '楽しくなかった', 'すごく楽しくなかった'];
     public const DIFFICULTY_CHOICES = ['とても易しかった', 'やや易しかった', 'ちょうど良かった', 'やや難しかった', 'とても難しかった'];
-    public const AMOUNT_CHOICES = ['少なかった', 'やや少なかった', 'ちょうど良かった', 'やや多かった', '多かった'];
+    public const AMOUNT_CHOICES = ['多かった', 'やや多かった', 'ちょうど良かった', 'やや少なかった', '少なかった'];
     public const INTENT_CHOICES = ['ぜひ参加したい', '機会があれば参加したい', 'どちらとも言えない', 'あまり参加したくない', '参加したくない'];
 
     public function initialize(array $config): void
