@@ -5,7 +5,7 @@
   const message = document.querySelector('#form-message')
   const missionCards = [...document.querySelectorAll('[data-mission]')]
   const missionTitles = [
-    '今日のイベントを振り返ろう',
+    'イベントを振り返ろう',
     'イベントをレビューしよう',
     '次回への気持ちを教えてね',
     '次のイベントをもっと楽しくしよう',
