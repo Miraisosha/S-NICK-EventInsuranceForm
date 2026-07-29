@@ -3,7 +3,23 @@
   const form = document.querySelector('#survey-form')
   const eventSelect = document.querySelector('#event_id')
   const message = document.querySelector('#form-message')
+  const missionCards = [...document.querySelectorAll('[data-mission]')]
+  const missionTitles = [
+    '今日のイベントを振り返ろう',
+    'イベントをレビューしよう',
+    '次回への気持ちを教えてね',
+    '次のイベントをもっと楽しくしよう',
+  ]
+  const missionProgress = document.querySelector('.mission-progress')
+  const missionProgressLabel = document.querySelector('#mission-progress-label')
+  const missionProgressTitle = document.querySelector('#mission-progress-title')
+  const missionProgressTrack = document.querySelector('.mission-progress-track')
+  const missionProgressBar = document.querySelector('#mission-progress-bar')
+  const backButton = document.querySelector('#back-button')
+  const nextButton = document.querySelector('#next-button')
   const submitButton = document.querySelector('#submit-button')
+  const bonusMission = document.querySelector('#bonus-mission')
+  let currentMission = 0
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;',
   })[character])
@@ -22,6 +38,63 @@
   document.querySelectorAll('[data-options]').forEach((element) => {
     renderChoices(element, element.dataset.options.split('|'))
   })
+
+  function showMission(index, scroll = true) {
+    currentMission = Math.max(0, Math.min(index, missionCards.length - 1))
+    missionCards.forEach((card, cardIndex) => {
+      card.hidden = cardIndex !== currentMission
+    })
+
+    const missionNumber = currentMission + 1
+    missionProgressLabel.textContent = `MISSION ${missionNumber} / ${missionCards.length}`
+    missionProgressTitle.textContent = missionTitles[currentMission]
+    missionProgressTrack.setAttribute('aria-valuenow', String(missionNumber))
+    missionProgressBar.style.width = `${(missionNumber / missionCards.length) * 100}%`
+    backButton.hidden = currentMission === 0
+    nextButton.hidden = currentMission === missionCards.length - 1
+    submitButton.hidden = currentMission !== missionCards.length - 1
+    showMessage('')
+
+    if (scroll) {
+      missionProgress.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  function findInvalidControl(card) {
+    const requiredControls = [...card.querySelectorAll('[required]')]
+    return requiredControls.find((control) => {
+      if (control.type === 'radio') {
+        return !form.elements[control.name]?.value
+      }
+      return !control.checkValidity()
+    })
+  }
+
+  function showValidationError(missionIndex, invalidControl) {
+    showMission(missionIndex, false)
+    const errorTarget = invalidControl.closest('.choice-grid, .field, .question')
+    errorTarget?.classList.add('has-error')
+    invalidControl.setAttribute('aria-invalid', 'true')
+    showMessage(`MISSION ${missionIndex + 1}に、まだ回答していない必須項目があります。あと少しでクリア！`)
+    errorTarget?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    invalidControl.focus({ preventScroll: true })
+  }
+
+  function validateMission(missionIndex) {
+    const invalidControl = findInvalidControl(missionCards[missionIndex])
+    if (!invalidControl) return true
+    showValidationError(missionIndex, invalidControl)
+    return false
+  }
+
+  function updateBonusMission() {
+    const attendance = form.elements.attendance_days?.value
+    const isFirstDayParticipant = attendance === '1日目のみ' || attendance === '両日参加'
+    bonusMission.hidden = !isFirstDayParticipant
+    if (!isFirstDayParticipant) {
+      bonusMission.querySelector('textarea').value = ''
+    }
+  }
 
   async function request(url, options = {}) {
     const response = await fetch(url, {
@@ -59,17 +132,39 @@
     }
   }
 
+  form.addEventListener('change', (event) => {
+    event.target.removeAttribute('aria-invalid')
+    event.target.closest('.has-error')?.classList.remove('has-error')
+    if (event.target.name === 'attendance_days') updateBonusMission()
+    if (message.classList.contains('show')) showMessage('')
+  })
+
+  form.addEventListener('input', (event) => {
+    event.target.removeAttribute('aria-invalid')
+    event.target.closest('.has-error')?.classList.remove('has-error')
+  })
+
+  nextButton.addEventListener('click', () => {
+    if (validateMission(currentMission)) showMission(currentMission + 1)
+  })
+
+  backButton.addEventListener('click', () => {
+    showMission(currentMission - 1)
+  })
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
     showMessage('')
-    if (!form.reportValidity()) {
-      showMessage('必須項目をすべて選択してください。')
+
+    const invalidMission = missionCards.findIndex((card) => findInvalidControl(card))
+    if (invalidMission >= 0) {
+      showValidationError(invalidMission, findInvalidControl(missionCards[invalidMission]))
       return
     }
 
     const payload = Object.fromEntries(new FormData(form).entries())
     submitButton.disabled = true
-    submitButton.textContent = '送信しています…'
+    submitButton.textContent = 'ミッションを送信中…'
     try {
       await request('/api/surveys/responses', {
         method: 'POST',
@@ -80,9 +175,9 @@
           <div>
             <div class="complete-mark" aria-hidden="true">✓</div>
             <img class="complete-character" src="/brand/snick-character-thank-you.png" alt="S-NICKキャラクター" width="600" height="295">
-            <p class="eyebrow" style="color:#1766a8">THANK YOU</p>
-            <h1>アンケートにお答えいただき<br>ありがとうございます。</h1>
-            <p>いただいたご意見は、今後のイベント運営に活かしてまいります。</p>
+            <p class="eyebrow" style="color:#1766a8">MISSION COMPLETE!</p>
+            <h1>ミッションへのご協力<br>ありがとうございました！</h1>
+            <p>いただいた声を、次回のイベントづくりに活かします。</p>
           </div>
         </section>
       `
@@ -90,9 +185,11 @@
     } catch (error) {
       showMessage(error.message)
       submitButton.disabled = false
-      submitButton.textContent = '回答を送信する'
+      submitButton.textContent = 'ミッションを完了する'
     }
   })
 
+  showMission(0, false)
+  updateBonusMission()
   loadEvents()
 })()

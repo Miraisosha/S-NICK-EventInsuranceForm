@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>イベントアンケート | S-NICK</title>
+  <title>S-NICKミッション | イベントアンケート</title>
   <link rel="stylesheet" href="/survey/styles.css">
 </head>
 <body>
@@ -12,21 +12,40 @@
     <div class="header-inner">
       <img class="brand-character" src="/brand/snick-character.png" alt="" width="234" height="180">
       <img class="brand-logo" src="/brand/snick-logo.png" alt="S-NICK">
-      <span class="header-title">イベントアンケート</span>
+      <span class="header-title">S-NICKミッション</span>
     </div>
   </header>
 
   <main id="main" class="page">
     <section class="hero">
-      <p class="eyebrow">EVENT SURVEY</p>
-      <h1>イベントアンケート</h1>
-      <p>次回のイベントをもっと楽しくするため、皆さんのご意見をお聞かせください。</p>
+      <p class="eyebrow">S-NICK MISSION</p>
+      <h1>S-NICKからのミッション！</h1>
+      <p>次回のイベントをもっと楽しくするため、みんなの声を聞かせてください。</p>
+      <p class="hero-note">所要時間は約3分。感じたことをそのまま教えてね！</p>
     </section>
 
     <form id="survey-form" novalidate>
       <div id="form-message" class="message" role="alert" tabindex="-1"></div>
 
-      <section class="card">
+      <section class="mission-progress" aria-label="ミッションの進捗">
+        <div class="mission-progress-copy">
+          <strong id="mission-progress-label">MISSION 1 / 4</strong>
+          <span id="mission-progress-title">今日のイベントを振り返ろう</span>
+        </div>
+        <div class="mission-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="4"
+          aria-valuenow="1" aria-label="ミッション進捗">
+          <span id="mission-progress-bar"></span>
+        </div>
+      </section>
+
+      <section class="card mission-card" data-mission="1">
+        <div class="mission-heading">
+          <span class="mission-badge">MISSION 1</span>
+          <div>
+            <h2>今日のイベントを振り返ろう</h2>
+            <p>まずは参加したイベントと、今日の楽しさを教えてね！</p>
+          </div>
+        </div>
         <div class="intro-grid">
           <div class="field">
             <label class="field-label" for="event_id">参加したイベント<span class="required">必須</span></label>
@@ -40,9 +59,6 @@
               placeholder="お名前を入力してください">
           </div>
         </div>
-      </section>
-
-      <section class="card">
         <div class="question">
           <h2><span class="question-number">1.</span>参加した日程<span class="required">必須</span></h2>
           <p class="question-copy">今回参加した日程を教えてください。</p>
@@ -56,6 +72,16 @@
           <h2><span class="question-number">3.</span>イベント全体の満足度<span class="required">必須</span></h2>
           <p class="question-copy">イベント全体の内容はいかがでしたか。</p>
           <div class="choice-grid" data-satisfaction data-name="overall_satisfaction"></div>
+        </div>
+      </section>
+
+      <section class="card mission-card" data-mission="2" hidden>
+        <div class="mission-heading">
+          <span class="mission-badge">MISSION 2</span>
+          <div>
+            <h2>イベントをレビューしよう</h2>
+            <p>練習やゲーム、スタッフやゲストについて感じたことを教えてね！</p>
+          </div>
         </div>
         <div class="question">
           <h2><span class="question-number">4.</span>練習・チーム戦の内容<span class="required">必須</span></h2>
@@ -82,48 +108,68 @@
           <p class="question-copy">運動量はいかがでしたか。</p>
           <div class="choice-grid" data-options="多かった|やや多かった|ちょうど良かった|やや少なかった|少なかった" data-name="training_amount"></div>
         </div>
+      </section>
+
+      <section class="card mission-card" data-mission="3" hidden>
+        <div class="mission-heading">
+          <span class="mission-badge">MISSION 3</span>
+          <div>
+            <h2>次回への気持ちを教えてね</h2>
+            <p>また参加したいか、今の気持ちを聞かせてください。</p>
+          </div>
+        </div>
         <div class="question">
           <h2><span class="question-number">9.</span>また参加したいと思いますか<span class="required">必須</span></h2>
           <div class="choice-grid" data-options="ぜひ参加したい|機会があれば参加したい|どちらとも言えない|あまり参加したくない|参加したくない" data-name="participation_intent"></div>
         </div>
-      </section>
-
-      <section class="card">
         <div class="question">
-          <h2><span class="question-number">10.</span>その理由<span class="optional">任意</span></h2>
+          <h2><span class="question-number">10.</span>その理由<span class="optional">書ける方だけでOK</span></h2>
           <p class="question-copy">上記の回答の理由を教えてください。</p>
           <textarea name="participation_reason" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
         </div>
+      </section>
+
+      <section class="card mission-card" data-mission="4" hidden>
+        <div class="mission-heading">
+          <span class="mission-badge">MISSION 4</span>
+          <div>
+            <h2>次のイベントをもっと楽しくしよう</h2>
+            <p>書けるところだけでOK。あなたのアイデアをS-NICKに教えてね！</p>
+          </div>
+        </div>
         <div class="question">
-          <h2><span class="question-number">11.</span>特に良かった練習<span class="optional">任意</span></h2>
+          <h2><span class="question-number">11.</span>特に良かった練習<span class="optional">書ける方だけでOK</span></h2>
           <p class="question-copy">印象に残った練習や、特に良かった内容があれば教えてください。</p>
           <textarea name="best_training" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
         </div>
         <div class="question">
-          <h2><span class="question-number">12.</span>改善してほしいこと<span class="optional">任意</span></h2>
+          <h2><span class="question-number">12.</span>もっと楽しくするアイデア<span class="optional">書ける方だけでOK</span></h2>
           <p class="question-copy">より良い時間を過ごしていただくために役立てます。</p>
           <textarea name="improvements" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
         </div>
         <div class="question">
-          <h2><span class="question-number">13.</span>今後やってほしい練習<span class="optional">任意</span></h2>
+          <h2><span class="question-number">13.</span>今後やってほしい練習<span class="optional">書ける方だけでOK</span></h2>
           <p class="question-copy">次回以降に取り入れてほしい練習や企画があれば教えてください。</p>
           <textarea name="future_training" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
         </div>
-        <div class="question">
-          <h2><span class="question-number">14.</span>審判勉強会の満足度（1日目参加の方）<span class="optional">任意</span></h2>
+        <div id="bonus-mission" class="question bonus-mission" hidden>
+          <span class="bonus-badge">BONUS MISSION</span>
+          <h2><span class="question-number">14.</span>審判勉強会の満足度（1日目参加の方）<span class="optional">書ける方だけでOK</span></h2>
           <p class="question-copy">審判勉強会の内容はいかがでしたか。</p>
           <textarea name="referee_workshop_feedback" maxlength="2000"
             placeholder="ご自由にご記入ください"></textarea>
         </div>
         <div class="question">
-          <h2><span class="question-number">15.</span>その他ご意見・ご感想<span class="optional">任意</span></h2>
+          <h2><span class="question-number">15.</span>S-NICKに伝えたいこと<span class="optional">書ける方だけでOK</span></h2>
           <p class="question-copy">その他、ご意見・ご感想など、ご自由にご記入ください。</p>
           <textarea name="other_comments" maxlength="2000" placeholder="ご自由にご記入ください"></textarea>
         </div>
       </section>
 
-      <div class="form-actions">
-        <button id="submit-button" class="button" type="submit">回答を送信する</button>
+      <div class="mission-actions">
+        <button id="back-button" class="button secondary" type="button" hidden>前のミッションへ</button>
+        <button id="next-button" class="button" type="button">次のミッションへ</button>
+        <button id="submit-button" class="button" type="submit" hidden>ミッションを完了する</button>
       </div>
     </form>
   </main>
