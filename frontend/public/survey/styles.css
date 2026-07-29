@@ -38,16 +38,26 @@ button, input, select, textarea { font: inherit; }
   padding: 12px 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+.brand-character {
+  width: auto;
+  height: 58px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .brand-logo {
   width: auto;
   height: 42px;
+  flex: 0 1 auto;
+  min-width: 0;
   object-fit: contain;
 }
 
 .header-title {
+  margin-left: 4px;
   color: var(--navy);
   font-size: 15px;
   font-weight: 750;
@@ -242,6 +252,10 @@ select:disabled { color: #8b95a2; background: #eef2f6; }
 .pill { display: inline-block; padding: 3px 10px; color: var(--navy); background: #e8f1f9; border-radius: 999px; font-size: 12px; font-weight: 800; }
 
 @media (max-width: 760px) {
+  .header-inner { min-height: 64px; padding: 8px 12px; gap: 8px; }
+  .brand-character { height: 44px; }
+  .brand-logo { height: 32px; }
+  .header-title { margin-left: 2px; font-size: 12px; line-height: 1.4; }
   .page { margin-top: 24px; }
   .intro-grid, .answer-grid { grid-template-columns: 1fr; }
   .choice-grid, .choice-grid.three { grid-template-columns: 1fr; }
