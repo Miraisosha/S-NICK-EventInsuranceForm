@@ -47,7 +47,7 @@ class SurveysControllerTest extends TestCase
     {
         $event = $this->createEvent();
         $data = $this->responseData($event->id);
-        unset($data['special_guest_satisfaction']);
+        unset($data['event_enjoyment']);
 
         $this->postJson('/api/surveys/responses', $data);
 
@@ -76,6 +76,7 @@ class SurveysControllerTest extends TestCase
         $this->get('/api/admin/surveys');
         $this->assertResponseOk();
         $this->assertSame('Survey User', $this->payload()['responses'][0]['attendee_name']);
+        $this->assertSame('とても楽しかった', $this->payload()['responses'][0]['event_enjoyment']);
         $this->assertSame('とても満足', $this->payload()['responses'][0]['overall_satisfaction']);
         $this->assertSame('満足', $this->payload()['responses'][0]['special_guest_satisfaction']);
         $this->assertSame('勉強になりました。', $this->payload()['responses'][0]['referee_workshop_feedback']);
@@ -104,6 +105,7 @@ class SurveysControllerTest extends TestCase
             'event_id' => $eventId,
             'attendee_name' => $attendeeName,
             'attendance_days' => '両日参加',
+            'event_enjoyment' => 'とても楽しかった',
             'overall_satisfaction' => 'とても満足',
             'lesson_satisfaction' => '満足',
             'staff_satisfaction' => 'とても満足',

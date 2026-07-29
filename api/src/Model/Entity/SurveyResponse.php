@@ -12,6 +12,7 @@ class SurveyResponse extends Entity
         'insurance_member_id' => true,
         'attendee_name' => true,
         'attendance_days' => true,
+        'event_enjoyment' => true,
         'overall_satisfaction' => true,
         'lesson_satisfaction' => true,
         'staff_satisfaction' => true,

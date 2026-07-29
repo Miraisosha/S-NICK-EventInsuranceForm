@@ -7,6 +7,7 @@
 
   const answerLabels = {
     attendance_days: '参加した日程',
+    event_enjoyment: 'イベントの幸福度',
     overall_satisfaction: 'イベント全体の満足度',
     lesson_satisfaction: '練習・チーム戦の内容',
     staff_satisfaction: 'スタッフの対応',

@@ -35,7 +35,8 @@ class AdminSurveysController extends AppController
         fwrite($stream, "\xEF\xBB\xBF");
         fputcsv($stream, [
             '回答日時', 'イベント名', '開催日', '氏名', '参加日程',
-            'イベント全体の満足度', '練習・チーム戦の内容', 'スタッフの対応',
+            'イベントの幸福度', 'イベント全体の満足度',
+            '練習・チーム戦の内容', 'スタッフの対応',
             'スペシャルゲストの満足度', '練習・ゲームの難易度',
             '運動量', 'また参加したいと思いますか',
             'その理由', '特に良かった練習', '改善してほしいこと',
@@ -48,7 +49,7 @@ class AdminSurveysController extends AppController
             fputcsv($stream, array_map($this->safeCsvCell(...), [
                 $data['submitted_at'], $data['event_name'], $data['event_date'],
                 $data['attendee_name'], $data['attendance_days'],
-                $data['overall_satisfaction'], $data['lesson_satisfaction'],
+                $data['event_enjoyment'], $data['overall_satisfaction'], $data['lesson_satisfaction'],
                 $data['staff_satisfaction'], $data['special_guest_satisfaction'],
                 $data['difficulty'], $data['training_amount'],
                 $data['participation_intent'], $data['participation_reason'],
@@ -101,6 +102,7 @@ class AdminSurveysController extends AppController
             'event_date' => $item->event?->event_date?->format('Y-m-d'),
             'attendee_name' => $item->attendee_name,
             'attendance_days' => $item->attendance_days,
+            'event_enjoyment' => $item->event_enjoyment,
             'overall_satisfaction' => $item->overall_satisfaction,
             'lesson_satisfaction' => $item->lesson_satisfaction,
             'staff_satisfaction' => $item->staff_satisfaction,
