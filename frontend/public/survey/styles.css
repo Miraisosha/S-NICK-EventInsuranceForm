@@ -13,6 +13,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -89,6 +90,17 @@ button, input, select, textarea { font: inherit; }
 h1, h2, h3, p { margin-top: 0; }
 h1 { margin-bottom: 10px; font-size: clamp(27px, 5vw, 40px); line-height: 1.35; }
 .hero p:last-child { margin-bottom: 0; color: #e7f4ff; }
+.hero .hero-note {
+  width: fit-content;
+  margin-top: 16px;
+  padding: 6px 12px;
+  color: #fff;
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 750;
+}
 
 .card {
   margin-bottom: 20px;
@@ -97,6 +109,104 @@ h1 { margin-bottom: 10px; font-size: clamp(27px, 5vw, 40px); line-height: 1.35; 
   border: 1px solid var(--line);
   border-radius: 18px;
   box-shadow: 0 9px 30px rgba(23, 57, 99, .07);
+}
+
+.mission-progress {
+  position: sticky;
+  z-index: 5;
+  top: 12px;
+  margin-bottom: 18px;
+  padding: 15px 20px 17px;
+  background: rgba(255,255,255,.96);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(23, 57, 99, .09);
+  backdrop-filter: blur(8px);
+}
+
+.mission-progress-copy {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mission-progress-copy strong {
+  color: var(--blue);
+  font-size: 13px;
+  letter-spacing: .08em;
+}
+
+.mission-progress-copy span {
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.mission-progress-track {
+  height: 8px;
+  overflow: hidden;
+  background: #e4ebf2;
+  border-radius: 999px;
+}
+
+.mission-progress-track span {
+  width: 25%;
+  height: 100%;
+  display: block;
+  background: linear-gradient(90deg, var(--orange), #f5b331);
+  border-radius: inherit;
+  transition: width .28s ease;
+}
+
+.mission-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 0;
+}
+
+.mission-heading h2 {
+  margin-bottom: 3px;
+  color: var(--navy);
+  font-size: clamp(21px, 4vw, 27px);
+  line-height: 1.4;
+}
+
+.mission-heading p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.mission-badge, .bonus-badge {
+  flex: 0 0 auto;
+  display: inline-block;
+  padding: 5px 11px;
+  color: #fff;
+  background: var(--blue);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .09em;
+}
+
+.bonus-badge {
+  margin-bottom: 10px;
+  color: #7a3b00;
+  background: #fff0c7;
+  border: 1px solid #f4c76a;
+}
+
+.mission-heading + .question { border-top: 0; }
+.bonus-mission {
+  margin: 8px 0;
+  padding: 24px 20px;
+  background: #fffbef;
+  border: 1px dashed #e9a72c;
+  border-radius: 14px;
 }
 
 .intro-grid {
@@ -137,6 +247,10 @@ select { min-height: 48px; padding: 9px 40px 9px 13px; }
 textarea { min-height: 132px; padding: 12px 14px; resize: vertical; }
 input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(23, 102, 168, .15); }
 select:disabled { color: #8b95a2; background: #eef2f6; }
+.field.has-error select,
+.field.has-error input,
+.question.has-error textarea { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(180, 35, 24, .1); }
+.choice-grid.has-error .choice { border-color: var(--danger); background: #fff8f7; }
 
 .question {
   padding: 26px 0;
@@ -177,6 +291,14 @@ select:disabled { color: #8b95a2; background: #eef2f6; }
 .choice:has(input:focus-visible) { outline: 3px solid rgba(23, 102, 168, .25); outline-offset: 2px; }
 
 .form-actions { display: flex; justify-content: center; padding-top: 16px; }
+.mission-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+.mission-actions .secondary { margin-right: auto; }
 .button {
   min-width: 240px;
   min-height: 52px;
@@ -264,6 +386,14 @@ select:disabled { color: #8b95a2; background: #eef2f6; }
   .brand-logo { height: 32px; }
   .header-title { margin-left: 2px; font-size: 12px; line-height: 1.4; }
   .page { margin-top: 24px; }
+  .hero .hero-note { width: 100%; border-radius: 10px; }
+  .mission-progress { top: 8px; padding: 12px 14px 14px; }
+  .mission-progress-copy { align-items: flex-start; flex-direction: column; gap: 1px; }
+  .mission-progress-copy span { text-align: left; }
+  .mission-heading { flex-direction: column; gap: 10px; }
+  .mission-actions { align-items: stretch; flex-direction: column-reverse; }
+  .mission-actions .button { width: 100%; }
+  .mission-actions .secondary { margin-right: 0; }
   .intro-grid, .answer-grid { grid-template-columns: 1fr; }
   .choice-grid, .choice-grid.three { grid-template-columns: 1fr; }
   .choice { min-height: 48px; justify-content: flex-start; padding-left: 16px; }
