@@ -79,6 +79,7 @@
         <section class="card complete">
           <div>
             <div class="complete-mark" aria-hidden="true">✓</div>
+            <img class="complete-character" src="/brand/snick-character-thank-you.png" alt="S-NICKキャラクター" width="600" height="295">
             <p class="eyebrow" style="color:#1766a8">THANK YOU</p>
             <h1>アンケートにお答えいただき<br>ありがとうございます。</h1>
             <p>いただいたご意見は、今後のイベント運営に活かしてまいります。</p>
